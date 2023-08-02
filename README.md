@@ -5,10 +5,9 @@ A *very* simple virtual machine written in C. Inspired by Tsoding.
 [Tsoding](https://www.youtube.com/@TsodingDaily)
 
 # Quick Start
-'
+```console
 $ ./build <example program>
-'
-----------
+```
 # Instructions
 
     add, sub, div, mod, mult 
