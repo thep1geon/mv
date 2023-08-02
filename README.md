@@ -35,11 +35,11 @@ $ ./build <example program>
         if no paramter is passed, the top is just popped
 
     jmp (and all the variants)
-        '
-        push 0
-        push 1
-        jmp 0
-        ' 
+```mv
+push 0
+push 1
+jmp 0
+```
 
         all jump instructions take the jump-point as the first parameter
 
