@@ -34,6 +34,7 @@ Inst_Type str_to_type(const char* str) {
     if (strcmp(str, "add") == 0) { return ADD;}
     else if (strcmp(str, "sub") == 0) { return SUB;}
     else if (strcmp(str, "div") == 0) { return DIV;}
+    else if (strcmp(str, "mod") == 0) { return MOD;}
     else if (strcmp(str, "mult") == 0) { return MULT;}
     else if (strcmp(str, "inc") == 0) { return INC;}
     else if (strcmp(str, "dec") == 0) { return DEC;}

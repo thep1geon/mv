@@ -1,0 +1,15 @@
+push 0
+push 1
+push 0
+
+pop 9
+
+dupe 1
+dupe 1
+add
+
+mov 9
+inc 0
+jmp_lt 3 100
+pop
+dump

@@ -1,9 +1,0 @@
-push 0
-push 1
-
-dupe 1
-dupe 1
-add
-
-jmp_lt 2 5000
-dump

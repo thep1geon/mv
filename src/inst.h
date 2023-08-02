@@ -11,6 +11,7 @@ typedef enum {
     ADD = 0,
     SUB,
     DIV,
+    MOD,
     MULT,
     INC,
     DEC,
@@ -39,6 +40,7 @@ char* operation_to_str(Inst_Type i) {
         case ADD: return "ADD";
         case SUB: return "SUB";
         case DIV: return "DIV";
+        case MOD: return "MOD";
         case MULT: return "MULT";
         case INC: return "INC";
         case DEC: return "DEC";
@@ -127,6 +129,23 @@ static void divide(Stack* s) {
     push(s, a.data/b.data);
 }
 
+static void mod(Stack* s) {
+    if (s->size < 2) {
+        err(new_error(STACK_StackUnderflow, 
+                      "Cannot divide two elements if the stack doesn't have two elements", 
+                      __LINE__, __FILE__));
+    }
+    Node a = pop(s);
+    Node b = pop(s);
+
+    if (a.data == 0 || b.data == 0) {
+        err(new_error(MV_DivisionByZero, "Division by zero error", 
+                    __LINE__, __FILE__));
+    }
+
+    push(s, a.data%b.data);
+}
+
 static void dupe(Stack* s, size_t addr) {
     if (addr >= s->size) {
         err(new_error(STACK_IndexOutofBounds, 
@@ -176,6 +195,9 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         break;
     case DIV:
         divide(s);
+        break;
+    case MOD:
+        mod(s);
         break;
     case INC:
         if (i.operand >= 0 && i.operand < (long)s->size) {
@@ -237,15 +259,38 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
     case STOP:
         e.type = MV_Stop;
         return e;
-    case DUMP:
-        print(s);
-        printf("--------------\n");
+    case DUMP: {
+            if (!i.has_operand) {
+                printf("--------------\n");
+                print(s);
+                printf("--------------\n");
+            } else if (i.has_operand) {
+                if (i.operand >= 0 && i.operand < (long)s->size) {
+                    print_node(*s->data[s->size - 1 - i.operand]);
+                } else {
+                    err(new_error(STACK_IndexOutofBounds, "Index out of bounds", 
+                                  __LINE__, __FILE__));
+                }
+            }
+        }
         break;
     case MOV:
         move(s, registers, register_size, i.operand, i.operator, i.has_operand, i.has_operator);
         break;
-    case POP:
-        pop(s);
+    case POP: {
+            if (i.has_operand) {
+                Node node = pop(s);
+                if (i.operand >= (long)register_size || i.operand < 0) {
+                    err(new_error(STACK_IndexOutofBounds, 
+                                  "Cannot pop into register that doesn't exist", 
+                                  __LINE__, __FILE__));
+                }
+
+                registers[i.operand] = (long)node.data;
+            } else {
+                pop(s);
+            }
+        }
         break;
     case EMPTY:
         break;

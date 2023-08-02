@@ -1,0 +1,23 @@
+mov 0 16
+
+mov 0
+dec 0
+pop 9
+
+mov 0
+
+dupe 0
+dec 0
+jmp_neq 5 0
+pop
+
+mov 9
+
+pop 9
+mult
+mov 9
+dec 0
+jmp_neq 10 0
+pop
+
+dump

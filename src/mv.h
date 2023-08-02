@@ -1,11 +1,6 @@
 #ifndef __MV_H
 #define __MV_H
 
-
-// mv => Mirtual Vachine
-
-#include <stdlib.h>
-#include <string.h>
 #ifndef STACK_CAP
 #define STACK_CAP 1024
 #endif
@@ -16,6 +11,8 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "err.h"
 #include "etypes.h"
@@ -31,10 +28,6 @@ typedef struct {
     long registers[NUM_REGISTERS];
     bool halt;
 } Mv; // Mirtual Vachine
-
-// Registers
-// mov 0 90 (moving the value 90 into register 0)
-// mov 5 (moving the value of register 5 onto the stack)
 
 Mv new_mv();
 void mv_run(Mv mv, bool debug);
@@ -85,20 +78,19 @@ static int count_lines(const char* filename) {
 
     int lines = 0;
     char ch;
-    int in_empty_line = 1; // Start with the flag set to true, assuming the first line is empty
+    int in_empty_line = 1;
 
     while ((ch = fgetc(file)) != EOF) {
         if (ch == '\n') {
             if (!in_empty_line) {
                 lines++;
             }
-            in_empty_line = true; // Reset the flag for the next line
+            in_empty_line = true;
         } else if (ch != ' ' && ch != '\t' && ch != '\r') {
-            in_empty_line = false; // If we encounter a non-whitespace character, mark the line as not empty
+            in_empty_line = false;
         }
     }
 
-    // If the file doesn't end with a newline, but has content, increment line count
     if (!in_empty_line) {
         lines++;
     }
@@ -114,11 +106,8 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
     ssize_t read;
 
     size_t ip = 0;
-    size_t lp = 0;
     int program_size = count_lines(file_path);
     Inst* p = (Inst*) malloc(sizeof(Inst) * program_size);
-
-
 
     if (f == NULL) {
         err(new_error(MV_FileOpenFail, "Failed to open file",
@@ -137,7 +126,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
     mv_set_program(mv, program);
 
     free(p);
-    fclose(f); // Close the file when done reading
+    fclose(f);
 }
 
 #endif //__MV_H

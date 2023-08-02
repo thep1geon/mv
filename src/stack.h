@@ -29,7 +29,9 @@ Node* node_alloc(int data) {
     Node *node = (Node *)(malloc(sizeof(Node)));
 
     if (node == NULL) {
-        err(new_error(STACK_NodeAllocFail, "Failed to allocate memory for a node", __LINE__, __FILE__));
+        err(new_error(STACK_NodeAllocFail, 
+                      "Failed to allocate memory for a node", 
+                      __LINE__, __FILE__));
     }
 
     node->data = data;
@@ -63,7 +65,9 @@ Stack* new_stack() {
     Stack* s = (Stack*)(malloc(sizeof(Stack)));
 
     if (!s) {
-        err(new_error(STACK_StackAllocFail, "Falied to allocate memory for a stack", __LINE__, __FILE__));
+        err(new_error(STACK_StackAllocFail, 
+                      "Falied to allocate memory for a stack", 
+                      __LINE__, __FILE__));
     }
 
     s->size = 0;
@@ -88,7 +92,8 @@ void print(Stack* stack) {
 
 void push(Stack* s, int data) {
     if (s->size == STACK_CAP) {
-        err(new_error(STACK_StackOverflow, "Stack Overflow", __LINE__, __FILE__));
+        err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                      __LINE__, __FILE__));
     }
 
     Node* new_node = node_alloc(data);
@@ -98,7 +103,8 @@ void push(Stack* s, int data) {
 
 void push_node(Stack* s, Node* n) {
     if (s->size == STACK_CAP) {
-        err(new_error(STACK_StackOverflow, "Stack Overflow", __LINE__, __FILE__));
+        err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                      __LINE__, __FILE__));
     }
 
     s->data[s->size] = n;
@@ -111,7 +117,8 @@ void push_node(Stack* s, Node* n) {
 
 Node pop(Stack* s) {
     if (s->size == 0) {
-        err(new_error(STACK_EmptyStackPop, "Empty stack, cannot pop", __LINE__, __FILE__));
+        err(new_error(STACK_EmptyStackPop, "Empty stack, cannot pop", 
+                      __LINE__, __FILE__));
     }
 
     Node popped_node = *s->data[--s->size];
@@ -121,7 +128,9 @@ Node pop(Stack* s) {
 
 Node* peek(Stack* s) {
     if (s->size == 0) {
-        non_failing_err(new_error(STACK_EmptyStackPeek, "Empty stack, cannot peek", __LINE__, __FILE__));
+        non_failing_err(new_error(STACK_EmptyStackPeek, 
+                                  "Empty stack, cannot peek", 
+                                  __LINE__, __FILE__));
         return NULL;
     }
 
@@ -143,12 +152,15 @@ int search(Stack* s, int data) {
 
 Node get(Stack* s, size_t index) {
     if (index >= s->size) {
-        err(new_error(STACK_IndexOutofBounds, "Index out of bounds", __LINE__, __FILE__));
+        err(new_error(STACK_IndexOutofBounds, 
+                      "Index out of bounds", __LINE__, __FILE__));
 
     }
 
     if (s->size == 0) {
-        non_failing_err(new_error(STACK_EmptyStack, "Nothin to get from an empty stack", __LINE__, __FILE__));
+        non_failing_err(new_error(STACK_EmptyStack, 
+                                  "Nothin to get from an empty stack", 
+                                  __LINE__, __FILE__));
     }
 
     size_t i = 0;
@@ -187,11 +199,14 @@ void clear(Stack* s) {
 
 void copy(Stack* dest, Stack* src) {
     if (dest == NULL || src == NULL) {
-        err(new_error(STACK_NullStack, "Cannot copy from/to null stack", __LINE__, __FILE__));
+        err(new_error(STACK_NullStack, "Cannot copy from/to null stack",
+                      __LINE__, __FILE__));
     }
     clear(dest);
     if (dest->size != 0) {
-        err(new_error(STACK_DestStackNotEmpty, "Dest stack not emptyied before copy", __LINE__, __FILE__));
+        err(new_error(STACK_DestStackNotEmpty, 
+                      "Dest stack not emptyied before copy", 
+                      __LINE__, __FILE__));
     }
 
     for (size_t i = 0; i < src->size; ++i) {
