@@ -35,11 +35,9 @@ $ ./build <example program>
         if no paramter is passed, the top is just popped
 
     jmp (and all the variants)
-```mv
-push 0
-push 1
-jmp 0
-```
+        push 0
+        push 1
+        jmp 0
 
         all jump instructions take the jump-point as the first parameter
 
@@ -47,3 +45,7 @@ jmp 0
 
     dump
         prints the stack
+
+
+# NOTE:
+comments are not natively supported
