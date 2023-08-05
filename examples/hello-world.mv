@@ -3,7 +3,7 @@ push e
 push l 
 push l
 push o
-push  
+push 32
 push w
 push o
 push r

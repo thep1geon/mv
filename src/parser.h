@@ -5,6 +5,7 @@
 #include "etypes.h"
 #include "inst.h"
 #include "stack.h"
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -17,7 +18,7 @@ void remove_newline(char* str) {
 
 bool isnum(const char* str) {
     if (str == NULL || *str == '\0') {
-        return 0;  // Empty string or NULL pointer
+        return false;  // Empty string or NULL pointer
     }
 
     while (*str) {
@@ -27,7 +28,7 @@ bool isnum(const char* str) {
         str++;
     }
 
-    return false;  // All characters are digits
+    return true;  // All characters are digits
 }
 
 Inst_Type str_to_type(const char* str) {
@@ -91,7 +92,7 @@ Inst parse_line(char* line) {
 
     if (operand != NULL) {
         if (!isnum(operand)) {
-            i.operand = (char)operand[0]; 
+            i.operand = operand[0]; 
         } else {
             i.operand = atoi(operand);
         }

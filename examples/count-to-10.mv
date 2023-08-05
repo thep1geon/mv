@@ -3,5 +3,5 @@ push 0
 dupe 0
 inc 0
 
-jmp_neq 1 1023
+jmp_lt 1 10
 dump

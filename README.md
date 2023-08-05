@@ -50,6 +50,179 @@ $ ./run <example program>
     print
         prints the ascii representation of the stack
 
+# Examples:
+## count-to-10
+Prints the first 10 natural numbers
+
+```
+push 0
+
+dupe 0
+inc 0
+
+jmp_neq 1 10
+dump
+```
+--------------
+Output:
+```
+--------------
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+0
+--------------
+```
+
+## fact
+Calculates the factorial of the number in register 0
+
+```
+mov 0 5
+
+mov 0
+dec 0
+pop 9
+
+mov 0
+
+dupe 0
+dec 0
+jmp_neq 5 0
+pop
+
+mov 9
+
+pop 9
+mult
+mov 9
+dec 0
+jmp_neq 10 0
+pop
+
+dump
+```
+--------------
+Output:
+```
+--------------
+120
+--------------
+```
+
+## fib
+Calculates the first 15 fibonacci sequence
+
+``` Code  
+push 0
+push 1
+push 0
+
+pop 9
+
+dupe 1
+dupe 1
+add
+
+mov 9
+inc 0
+jmp_lt 3 15
+pop
+dump
+```
+--------------
+Output:
+```
+--------------
+987
+610
+377
+233
+144
+89
+55
+34
+21
+13
+8
+5
+3
+2
+1
+1
+0
+--------------
+```
+
+## hello world
+Prints hello world
+
+``` 
+push H
+push e
+push l 
+push l
+push o
+push 32
+push w
+push o
+push r
+push l
+push d
+print
+```
+--------------
+Output:
+```
+--------------
+Hello world
+--------------
+```
+
+## squares
+```
+mov 0 1
+push 0
+
+pop 9
+
+mov 0
+mov 0
+mult
+mov 0
+inc 0
+pop 0
+
+mov 9
+inc 0
+jmp_lt 2 10
+
+pop
+dump
+```
+--------------
+``` 
+Output:
+--------------
+100
+81
+64
+49
+36
+25
+16
+9
+4
+1
+--------------
+```
 
 # NOTE:
 comments are not natively supported

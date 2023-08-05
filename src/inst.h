@@ -282,7 +282,7 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
                 printf("--------------\n");
             } else if (i.has_operand) {
                 if (i.operand >= 0 && i.operand < (long)s->size) {
-                    print_node_ascii(*s->data[s->size - 1 - i.operand]);
+                    print_node_ascii(*s->data[s->size - 1 - i.operand], true);
                 } else {
                     err(new_error(STACK_IndexOutofBounds, "Index out of bounds", 
                                   __LINE__, __FILE__));
