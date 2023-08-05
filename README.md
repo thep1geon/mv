@@ -25,6 +25,9 @@ $ ./run <example program>
     push
         pretty self-explanatory
 
+    push_lit
+        pushes the literal (ascii) everything after the instruction
+
     mov
         if only one paramter is provided, the value at that register (zero based) is pushed to that stack
         
@@ -165,24 +168,16 @@ Output:
 Prints hello world
 
 ``` 
-push H
-push e
-push l 
-push l
-push o
-push 32
-push w
-push o
-push r
-push l
-push d
+push_lit Hello, World!
+pop
+
 print
 ```
 --------------
 Output:
 ```
 --------------
-Hello world
+Hello, World!
 --------------
 ```
 

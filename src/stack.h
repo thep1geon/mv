@@ -89,7 +89,7 @@ void print(Stack* stack) {
         return;
     }
 
-    for (int i = stack->size - 1; i >= 0; --i) {
+    for (int i = 0; i < (int)stack->size; i++) {
         print_node(*stack->data[i]);
     }
 }

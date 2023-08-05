@@ -5,6 +5,7 @@
 #include "etypes.h"
 #include "inst.h"
 #include "stack.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -31,6 +32,19 @@ bool isnum(const char* str) {
     return true;  // All characters are digits
 }
 
+char* substr(const char* src, int start, int end) {
+    int input_len = strlen(src);
+    char* dest = malloc(end - start + 1);
+
+    if (start > input_len) {
+        return NULL;
+    }
+
+    strncpy(dest, src + start, end);
+    dest[end - start] = '\0';
+    return dest;
+}
+
 Inst_Type str_to_type(const char* str) {
     if (strcmp(str, "add") == 0) { return ADD;}
     else if (strcmp(str, "sub") == 0) { return SUB;}
@@ -41,6 +55,7 @@ Inst_Type str_to_type(const char* str) {
     else if (strcmp(str, "dec") == 0) { return DEC;}
 
     else if (strcmp(str, "push") == 0) { return PUSH;}
+    else if (strcmp(str, "push_lit") == 0) { return PUSH_LIT;}
     else if (strcmp(str, "dupe") == 0) { return DUPE;}
     else if (strcmp(str, "pop") == 0) {return POP;}
 
@@ -71,7 +86,11 @@ Inst parse_line(char* line) {
     i.has_operand = false;
     i.has_operator = false;
 
-    char* token = strtok(line, " ");
+    char new_line[strlen(line)];
+    memcpy(new_line, line, strlen(line)+1);
+    // remove_newline(line);
+
+    char* token = strtok(new_line, " ");
     char* type = NULL;
     char* operand = NULL;
     char* operator = NULL;
@@ -80,40 +99,37 @@ Inst parse_line(char* line) {
         if (type == NULL) {
             type = token;
             remove_newline(type);
+            i.type = str_to_type(type);
         } else if (operand == NULL) {
             operand = token;
             remove_newline(operand);
+
+            if (i.type == PUSH_LIT) {
+                i.literal = substr(line, 9, strlen(line));
+            }
+
+            if (!isnum(operand)) {
+                i.operand = operand[0]; 
+            } else {
+                i.operand = atoi(operand);
+            }
+
+            i.has_operand = true;
         } else if (operator == NULL) {
             operator = token;
             remove_newline(operator);
+
+            if (!isnum(operator)) {
+                i.operator = (char)operator[0];
+            } else {
+                i.operator = atoi(operator);
+            }
+
+            i.has_operator = true;
         }
+
         token = strtok(NULL, " ");
     }
-
-    if (operand != NULL) {
-        if (!isnum(operand)) {
-            i.operand = operand[0]; 
-        } else {
-            i.operand = atoi(operand);
-        }
-
-        i.has_operand = true;
-    }
-
-    if (operator != NULL) {
-        if (!isnum(operator)) {
-            i.operator = (char)operator[0];
-        } else {
-            i.operator = atoi(operator);
-        }
-
-        i.has_operator = true;
-    }
-
-    if (type != NULL) {
-        i.type = str_to_type(type);
-    }
-
     
     return i;
 }

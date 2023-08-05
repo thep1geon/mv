@@ -5,6 +5,7 @@
 #include "etypes.h"
 #include "stack.h"
 #include <stddef.h>
+#include <string.h>
 
 // Instructions go here
 typedef enum {
@@ -18,6 +19,7 @@ typedef enum {
 
     DUPE,
     PUSH,
+    PUSH_LIT,
     MOV,
     POP,
 
@@ -47,6 +49,8 @@ char* operation_to_str(Inst_Type i) {
         case DEC: return "DEC";
         case DUPE: return "DUPE";
         case PUSH: return "PUSH";
+        case PUSH_LIT: return "PUSH_LIT";
+        case PRINT: return "PRINT";
         case JMP: return "JMP";
         case JMP_GT: return "JMP_GT";
         case JMP_GTEQ: return "JMP_GTEQ";
@@ -69,6 +73,7 @@ typedef struct {
     long operator;
     bool has_operand;
     bool has_operator;
+    char* literal;
 } Inst;
 
 void print_inst(Inst i) {
@@ -223,6 +228,12 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         break;
     case PUSH:
         push(s, i.operand);
+        break;
+    case PUSH_LIT: {
+            for (size_t I = 0; I < (size_t)strlen(i.literal); ++I) {
+                push(s, i.literal[I]); 
+            }
+        }
         break;
     case JMP:
         *ip = i.operand - 1;
