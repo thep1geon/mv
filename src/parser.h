@@ -45,6 +45,7 @@ Inst_Type str_to_type(const char* str) {
 
     else if (strcmp(str, "stop") == 0) { return STOP;}
     else if (strcmp(str, "dump") == 0) { return DUMP;}
+    else if (strcmp(str, "print") == 0) { return PRINT;}
 
     else if (strcmp(str, "mov") == 0) {return MOV;}
 
@@ -89,12 +90,22 @@ Inst parse_line(char* line) {
     }
 
     if (operand != NULL) {
-        i.operand = atoi(operand);
+        if (!isnum(operand)) {
+            i.operand = (char)operand[0]; 
+        } else {
+            i.operand = atoi(operand);
+        }
+
         i.has_operand = true;
     }
 
     if (operator != NULL) {
-        i.operator = atoi(operator);
+        if (!isnum(operator)) {
+            i.operator = (char)operator[0];
+        } else {
+            i.operator = atoi(operator);
+        }
+
         i.has_operator = true;
     }
 

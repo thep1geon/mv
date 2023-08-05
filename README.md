@@ -7,7 +7,7 @@ A *very* simple virtual machine written in C. Inspired by Tsoding.
 
 # Quick Start
 ```console
-$ ./build <example program>
+$ ./run <example program>
 ```
 # Instructions
 
@@ -45,7 +45,10 @@ $ ./build <example program>
         the other jump options take what you're comparing the top of the stack with and only jumping if that is true
 
     dump
-        prints the stack
+        prints the stack as numbers
+    
+    print
+        prints the ascii representation of the stack
 
 
 # NOTE:

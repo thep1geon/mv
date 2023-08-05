@@ -32,6 +32,7 @@ typedef enum {
     
     STOP,
     DUMP,
+    PRINT,
     EMPTY, // Empty instruction, used for empty lines in the .mv file
 } Inst_Type;
 
@@ -267,6 +268,21 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
             } else if (i.has_operand) {
                 if (i.operand >= 0 && i.operand < (long)s->size) {
                     print_node(*s->data[s->size - 1 - i.operand]);
+                } else {
+                    err(new_error(STACK_IndexOutofBounds, "Index out of bounds", 
+                                  __LINE__, __FILE__));
+                }
+            }
+        }
+        break;
+    case PRINT: {
+            if (!i.has_operand) {
+                printf("--------------\n");
+                print_ascii(s);
+                printf("--------------\n");
+            } else if (i.has_operand) {
+                if (i.operand >= 0 && i.operand < (long)s->size) {
+                    print_node_ascii(*s->data[s->size - 1 - i.operand]);
                 } else {
                     err(new_error(STACK_IndexOutofBounds, "Index out of bounds", 
                                   __LINE__, __FILE__));
