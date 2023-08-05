@@ -1,5 +1,5 @@
 # Mirtual Vachine (mv)
-A *very* simple virtual machine written in C. Inspired by Tsoding.
+A ***very*** simple virtual machine written in C. Inspired by Tsoding.
 
 [Writing VM for my Lisp in C — Day 1](https://www.youtube.com/watch?v=0irYsCYuZws&list=PLpM-Dvs8t0VY73ytTCQqgvgCWttV3m8LM) 
 
@@ -7,7 +7,7 @@ A *very* simple virtual machine written in C. Inspired by Tsoding.
 
 # Quick Start
 ```console
-$ ./run <example program>
+$ ./mv <example program>
 ```
 # Instructions
 
@@ -203,8 +203,8 @@ pop
 dump
 ```
 --------------
-``` 
 Output:
+``` 
 --------------
 100
 81
