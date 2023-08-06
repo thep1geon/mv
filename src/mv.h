@@ -29,14 +29,14 @@ typedef struct {
     bool halt;
 } Mv; // Mirtual Vachine
 
-Mv new_mv();
+Mv new_mv(void);
 void mv_run(Mv mv, bool debug);
 void mv_dump(Mv mv);
 void mv_close(Mv mv);
 void mv_program_from_file(Mv* mv, const char* file_path);
 void mv_set_program(Mv* mv, Program p);
 
-Mv new_mv() {
+Mv new_mv(void) {
     Stack* s = new_stack();
     Mv mv = {.stack = s, .halt = false};
     return mv;

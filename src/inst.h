@@ -161,10 +161,10 @@ static void dupe(Stack* s, size_t addr) {
     push(s, s->data[s->size - 1 - addr]->data);
 }
 
-static void move(Stack* s, long* registers, size_t register_size, long operand, long operator, bool has_operand, bool has_operator) {
-    if (!has_operator) {
-        if (has_operand && operand >= 0 && operand < (long) register_size) {
-            push(s, registers[operand]);
+static void move(Stack* s, long* registers, size_t register_size, Inst i) {
+    if (!i.has_operator) {
+        if (i.has_operand && i.operand >= 0 && i.operand < (long) register_size) {
+            push(s, registers[i.operand]);
             return;
         } else {
             err(new_error(STACK_IndexOutofBounds, "Register not found", 
@@ -172,13 +172,19 @@ static void move(Stack* s, long* registers, size_t register_size, long operand, 
         }
     } 
 
-    if (has_operand && has_operator) {
-        registers[operand] = operator;
+    if (i.has_operand && i.has_operator) {
+        registers[i.operand] = i.operator;
         return;
     }
 
     err(new_error(INST_MissingParameters, "Move instruction missing parameters", 
                   __LINE__, __FILE__));
+}
+
+void jump(Inst i, size_t* ip) {
+    if (i.has_operand) {
+        *ip = i.operand - 1;
+    }
 }
 
 // The "driver" code for executing the Instructions
@@ -206,66 +212,88 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         mod(s);
         break;
     case INC:
-        if (i.operand >= 0 && i.operand < (long)s->size) {
-                (*s->data[s->size - 1 - i.operand]).data++;
-            } else {
-                err(new_error(STACK_IndexOutofBounds, 
-                              "Cannot decrement element outside the stack",
-                              __LINE__, __FILE__));
+        if (i.has_operand) {
+            if (i.operand >= 0 && i.operand < (long)s->size) {
+                    (*s->data[s->size - 1 - i.operand]).data++;
+                } else {
+                    err(new_error(STACK_IndexOutofBounds, 
+                                  "Cannot decrement element outside the stack",
+                                  __LINE__, __FILE__));
             }
+        } else {
+            (*s->data[s->size - 1]).data++;
+        }
         break;
     case DEC:
-        if (i.operand >= 0 && i.operand < (long)s->size) {
-                (*s->data[s->size - 1 - i.operand]).data--;
+        if (i.has_operand) {
+            if (i.operand >= 0 && i.operand < (long)s->size) {
+                    (*s->data[s->size - 1 - i.operand]).data--;
             } else {
                 err(new_error(STACK_IndexOutofBounds, 
                               "Cannot decrement element outside the stack",
                               __LINE__, __FILE__));
             }
+        } else {
+            (*s->data[s->size - 1]).data--;
+        }
         break;
     case DUPE:
-        dupe(s, i.operand);
+        if (i.has_operand) {
+            dupe(s, i.operand);
+        } else {
+            dupe(s, 0);
+        }
         break;
     case PUSH:
-        push(s, i.operand);
+        if (i.has_operand) {
+            push(s, i.operand);
+        } else {
+            err(new_error(INST_MissingParameters, "Parameters missing from instuction", 
+                          __LINE__, __FILE__));
+        }
         break;
     case PUSH_LIT: {
-            for (size_t I = 0; I < (size_t)strlen(i.literal); ++I) {
-                push(s, i.literal[I]); 
-            }
+        if (i.has_operand) {
+                for (size_t I = 0; I < (size_t)strlen(i.literal); ++I) {
+                    push(s, i.literal[I]); 
+                }
+        } else {
+            err(new_error(INST_MissingParameters, "Parameters missing from instuction", 
+                          __LINE__, __FILE__));
+        }
         }
         break;
     case JMP:
-        *ip = i.operand - 1;
+        jump(i, ip);
         break;
     case JMP_GT:
         if (peek(s)->data > i.operator) {
-            *ip = i.operand - 1;
+            jump(i, ip);
         } 
         break;
     case JMP_GTEQ:
         if (peek(s)->data >= i.operator) {
-            *ip = i.operand - 1;
+            jump(i, ip);
         } 
         break;
     case JMP_LT:
         if (peek(s)->data < i.operator) {
-            *ip = i.operand - 1;
+            jump(i, ip);
         } 
         break;
     case JMP_LTEQ:
         if (peek(s)->data <= i.operator) {
-            *ip = i.operand - 1;
+            jump(i, ip);
         } 
         break;
     case JMP_EQ:
         if (peek(s)->data == i.operator) {
-            *ip = i.operand - 1;
+            jump(i, ip);
         } 
         break;
     case JMP_NEQ:
         if (peek(s)->data != i.operator) {
-            *ip = i.operand - 1;
+            jump(i, ip);
         } 
         break;
     case STOP:
@@ -302,7 +330,7 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         }
         break;
     case MOV:
-        move(s, registers, register_size, i.operand, i.operator, i.has_operand, i.has_operator);
+        move(s, registers, register_size, i);
         break;
     case POP: {
             if (i.has_operand) {

@@ -83,12 +83,16 @@ Inst_Type str_to_type(const char* str) {
 
 Inst parse_line(char* line) {
     Inst i = {0};
+    i.type = EMPTY;
     i.has_operand = false;
     i.has_operator = false;
 
+    if (line[0] == ';') {
+        return i;
+    }
+
     char new_line[strlen(line)];
     memcpy(new_line, line, strlen(line)+1);
-    // remove_newline(line);
 
     char* token = strtok(new_line, " ");
     char* type = NULL;
@@ -104,6 +108,10 @@ Inst parse_line(char* line) {
             operand = token;
             remove_newline(operand);
 
+            if (operand[0] == ';') {
+                return i;
+            }
+                    
             if (i.type == PUSH_LIT) {
                 i.literal = substr(line, 9, strlen(line));
             }
@@ -119,6 +127,10 @@ Inst parse_line(char* line) {
             operator = token;
             remove_newline(operator);
 
+            if (operator[0] == ';') {
+                return i;
+            }
+
             if (!isnum(operator)) {
                 i.operator = (char)operator[0];
             } else {
@@ -129,8 +141,9 @@ Inst parse_line(char* line) {
         }
 
         token = strtok(NULL, " ");
+
     }
-    
+
     return i;
 }
 

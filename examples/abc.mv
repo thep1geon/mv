@@ -1,19 +1,19 @@
 push A
 
 dupe 0
-push 32
+push 32 ; Get the lower case version
 add
 
-jmp_eq 11 z
+jmp_eq 11 z ; jump to the end if the top of the stack is z
+
+push 32 ; pushes a space
 
 push 32
-
-push 32
-dupe 2
+dupe 2 ; Find the next letter
 sub
 
 inc 0
 
-jmp_lteq 1 Z
+jmp_lteq 1 Z ; jump back to the beginning of the loop
 
-print
+print ; print the stack in ascii form
