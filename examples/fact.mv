@@ -1,23 +1,25 @@
-mov 0 5
+mov 0 5 ; push 5 into register 0
 
-mov 0
+mov 0 ;
+dec 0 ; Find the number of times to multiply
+pop 9 ;
+
+mov 0 ; move the value of reg. 0 onto the stack
+
+loop:
+dupe 0 ; push to the stack of every number til 0
 dec 0
-pop 9
-
-mov 0
-
-dupe 0
-dec 0
-jmp_neq 5 0
+jmp_neq loop 0
 pop
 
-mov 9
+mov 9 ; reg. 9 will hold the "loop counter"
 
+mult_loop:
 pop 9
 mult
 mov 9
 dec 0
-jmp_neq 10 0
-pop
+jmp_neq mult_loop 0
+pop ; pop the loop counter
 
-dump
+dump ; print the numbers of the stack

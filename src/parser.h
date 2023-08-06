@@ -5,6 +5,7 @@
 #include "etypes.h"
 #include "inst.h"
 #include "stack.h"
+#include "label.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -46,7 +47,9 @@ char* substr(const char* src, int start, int end) {
 }
 
 Inst_Type str_to_type(const char* str) {
-    if (strcmp(str, "add") == 0) { return ADD;}
+    if (str[strlen(str)-1] == ':') {return LABEL;}
+
+    else if (strcmp(str, "add") == 0) { return ADD;}
     else if (strcmp(str, "sub") == 0) { return SUB;}
     else if (strcmp(str, "div") == 0) { return DIV;}
     else if (strcmp(str, "mod") == 0) { return MOD;}
@@ -86,6 +89,7 @@ Inst parse_line(char* line) {
     i.type = EMPTY;
     i.has_operand = false;
     i.has_operator = false;
+    i.literal = NULL;
 
     if (line[0] == ';') {
         return i;
@@ -116,13 +120,18 @@ Inst parse_line(char* line) {
                 i.literal = substr(line, 9, strlen(line));
             }
 
-            if (!isnum(operand)) {
-                i.operand = operand[0]; 
+            if (i.type >= JMP && i.type <= JMP_NEQ) {
+                i.literal = substr(operand, 0, strlen(operand));
+                i.has_operand = false;
             } else {
-                i.operand = atoi(operand);
+                if (!isnum(operand)) {
+                    i.operand = operand[0]; 
+                } else {
+                    i.operand = atoi(operand);
+                }
+                i.has_operand = true;
             }
 
-            i.has_operand = true;
         } else if (operator == NULL) {
             operator = token;
             remove_newline(operator);
@@ -142,6 +151,10 @@ Inst parse_line(char* line) {
 
         token = strtok(NULL, " ");
 
+    }
+
+    if (i.type == LABEL) {
+        i.literal = substr(line, 0, strlen(line)-2);
     }
 
     return i;

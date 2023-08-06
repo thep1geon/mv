@@ -1,4 +1,4 @@
 push_lit Hello, world!
-pop
+pop ; the new line character
 
 print

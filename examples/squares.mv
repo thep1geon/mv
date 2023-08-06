@@ -1,6 +1,7 @@
 mov 0 1
 push 0
 
+loop:
 pop 9
 
 mov 0
@@ -12,7 +13,7 @@ pop 0
 
 mov 9
 inc 0
-jmp_lt 2 10
+jmp_lt loop 10
 
 pop
 dump

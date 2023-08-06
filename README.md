@@ -54,19 +54,49 @@ $ ./mv <example program>
         prints the ascii representation of the stack
 
 # Examples:
-## count-to-10
-Prints the first 10 natural numbers
 
+## abc.mv
 ```
-push 0
+push A
 
+loop:
 dupe 0
+push 32 ; Get the lower case version
+add
+
+jmp_eq end z ; jump to the end if the top of the stack is z
+
+push 32 ; pushes a space
+
+push 32
+dupe 2 ; Find the next letter
+sub
+
 inc 0
 
-jmp_neq 1 10
-dump
+jmp_lteq loop Z ; jump back to the beginning of the loop
+
+end:
+print ; print the stack in ascii form
+```
+Output:
 ```
 --------------
+Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
+--------------
+```
+
+## count-to-10.mv 
+```
+push 0 ; Push the initial 0 to the stack
+
+loop:
+dupe 0 ; duplicate the top of the stack
+inc 0 ; increment the top of the stack
+
+jmp_lt loop 10 ; jump to the begining of the loop if the top of the stack is less than 10
+dump ; print the integer representation
+```
 Output:
 ```
 --------------
@@ -83,36 +113,34 @@ Output:
 10
 --------------
 ```
-
-## fact
-Calculates the factorial of the number in register 0
-
+## fact.mv
 ```
-mov 0 5
+mov 0 5 ; push 5 into register 0
 
-mov 0
+mov 0 ;
+dec 0 ; Find the number of times to multiply
+pop 9 ;
+
+mov 0 ; move the value of reg. 0 onto the stack
+
+loop:
+dupe 0 ; push to the stack of every number til 0
 dec 0
-pop 9
-
-mov 0
-
-dupe 0
-dec 0
-jmp_neq 5 0
+jmp_neq loop 0
 pop
 
-mov 9
+mov 9 ; reg. 9 will hold the "loop counter"
 
+mult_loop:
 pop 9
 mult
 mov 9
 dec 0
-jmp_neq 10 0
-pop
+jmp_neq mult_loop 0
+pop ; pop the loop counter
 
-dump
+dump ; print the numbers of the stack
 ```
---------------
 Output:
 ```
 --------------
@@ -120,14 +148,13 @@ Output:
 --------------
 ```
 
-## fib
-Calculates the first 15 fibonacci sequence
-
-``` Code  
+## fib.mv
+```
 push 0
 push 1
 push 0
 
+loop:
 pop 9
 
 dupe 1
@@ -136,11 +163,10 @@ add
 
 mov 9
 inc 0
-jmp_lt 3 15
+jmp_lt loop 15
 pop
 dump
 ```
---------------
 Output:
 ```
 --------------
@@ -162,31 +188,56 @@ Output:
 610
 987
 --------------
-
 ```
 
-## hello world
-Prints hello world
-
-``` 
-push_lit Hello, World!
-pop
+## hello-world.mv
+```
+push_lit Hello, world!
+pop ; the new line character
 
 print
 ```
---------------
 Output:
 ```
 --------------
-Hello, World!
+Hello, world!
 --------------
 ```
 
-## squares
+## labels.mv
+```
+push 10
+push 10
+add
+
+jmp_eq equal 20
+
+pop
+push_lit Not Equal
+jmp end
+
+equal:
+pop
+push_lit Equal
+jmp end
+
+end:
+pop ; pop the new line character
+print
+```
+Output:
+```
+--------------
+Equal
+--------------
+```
+
+## squares.mv
 ```
 mov 0 1
 push 0
 
+loop:
 pop 9
 
 mov 0
@@ -198,14 +249,13 @@ pop 0
 
 mov 9
 inc 0
-jmp_lt 2 10
+jmp_lt loop 10
 
 pop
 dump
 ```
---------------
 Output:
-``` 
+```
 --------------
 1
 4
@@ -217,35 +267,5 @@ Output:
 64
 81
 100
---------------
-```
-
-## Abc
-```
-push A
-
-dupe 0
-push 32
-add
-
-jmp_eq 11 z
-
-push 32
-
-push 32
-dupe 2
-sub
-
-inc 0
-
-jmp_lteq 1 Z
-
-print
-```
---------------
-Output:
-```
---------------
-Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
 --------------
 ```

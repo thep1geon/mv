@@ -1,10 +1,11 @@
 push A
 
+loop:
 dupe 0
 push 32 ; Get the lower case version
 add
 
-jmp_eq 11 z ; jump to the end if the top of the stack is z
+jmp_eq end z ; jump to the end if the top of the stack is z
 
 push 32 ; pushes a space
 
@@ -14,6 +15,7 @@ sub
 
 inc 0
 
-jmp_lteq 1 Z ; jump back to the beginning of the loop
+jmp_lteq loop Z ; jump back to the beginning of the loop
 
+end:
 print ; print the stack in ascii form

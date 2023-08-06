@@ -20,12 +20,14 @@
 #include "stack.h"
 #include "inst.h"
 #include "parser.h"
+#include "label.h"
 
 
 typedef struct {
     Program program;
     Stack* stack;
     long registers[NUM_REGISTERS];
+    LabelTable label_table;
     bool halt;
 } Mv; // Mirtual Vachine
 
@@ -50,7 +52,13 @@ void mv_run(Mv mv, bool debug) {
     }
 
     for (size_t i = 0; i < mv.program.size && !mv.halt; ++i) {
-        Err e = execute(mv.stack, mv.program.inst[i], &i, mv.registers, NUM_REGISTERS, debug);
+        Err e = execute(mv.stack, 
+                        &mv.program.inst[i], 
+                        mv.label_table,
+                        &i, 
+                        mv.registers, 
+                        NUM_REGISTERS, 
+                        debug);
 
         if (e.type != None) {
             mv.halt = true;
@@ -116,6 +124,13 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
     
     while ((read = getline(&line, &len, f)) > 0) {
         Inst i = parse_line(line);  
+
+        if (i.type == LABEL) {
+            size_t index = hash(i.literal, PROGRAM_MAX_SIZE);
+            Label l = (Label) {.jump_point = ip, .name = i.literal};
+            mv->label_table.labels[index] = l;
+            mv->label_table.size++;
+        }
 
         if (i.type != EMPTY) {
             p[ip++] = i;

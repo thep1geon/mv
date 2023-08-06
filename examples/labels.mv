@@ -1,16 +1,18 @@
-start:
 push 10
-push 20
+push 10
 add
-jmp_gt greater 40
-jmp_lt less 40
 
-less:
-pop
-push_lit Less than
-stop
+jmp_eq equal 20
 
-greater:
 pop
-push_lit Greater than
-stop
+push_lit Not Equal
+jmp end
+
+equal:
+pop
+push_lit Equal
+jmp end
+
+end:
+pop ; pop the new line character
+print

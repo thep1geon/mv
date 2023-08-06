@@ -1,4 +1,4 @@
 #!/bin/sh
 
-gcc main.c -Wall -Wextra -o mv
+gcc main.c -Wall -Wextra -g -o mv
 ./mv $1

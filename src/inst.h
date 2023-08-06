@@ -4,7 +4,9 @@
 #include "err.h"
 #include "etypes.h"
 #include "stack.h"
+#include "label.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 // Instructions go here
@@ -23,18 +25,19 @@ typedef enum {
     MOV,
     POP,
 
-    JMP,     // Jump
+    JMP,     // Jump //12
     JMP_GT, //>
     JMP_GTEQ, //>=
     JMP_LT, //<
     JMP_LTEQ, //<=
     JMP_EQ, //==
-    JMP_NEQ, // !=
+    JMP_NEQ, // != //18
     
     
     STOP,
     DUMP,
     PRINT,
+    LABEL,
     EMPTY, // Empty instruction, used for empty lines in the .mv file
 } Inst_Type;
 
@@ -61,6 +64,7 @@ char* operation_to_str(Inst_Type i) {
         case STOP: return "STOP";
         case DUMP: return "DUMP";
         case EMPTY: return "EMPTY";
+        case LABEL: return "LABEL";
         case MOV: return "MOV";
         case POP: return "POP";
         default: return "Unknown Instruction";
@@ -77,7 +81,7 @@ typedef struct {
 } Inst;
 
 void print_inst(Inst i) {
-    printf("Inst name: %s, operand: %zu, operator: %zu\n", operation_to_str(i.type), i.operand, i.operator);
+    printf("Inst name: %s, operand: %zu, operator: %zu, literal: %s\n", operation_to_str(i.type), i.operand, i.operator, i.literal);
 }
 
 // What happens when that instruction is found goes here
@@ -181,21 +185,27 @@ static void move(Stack* s, long* registers, size_t register_size, Inst i) {
                   __LINE__, __FILE__));
 }
 
-void jump(Inst i, size_t* ip) {
-    if (i.has_operand) {
-        *ip = i.operand - 1;
+void jump(Inst* i, LabelTable lt, size_t* ip) {
+    size_t jp;
+    if (i->literal && !i->has_operand) {
+        Label label = lt.labels[hash(i->literal, PROGRAM_MAX_SIZE)];
+        jp = label.jump_point;
+    } else if (i->has_operand && i->literal == NULL) {
+        jp = i->operand - 1;
     }
+
+    *ip = jp;
 }
 
 // The "driver" code for executing the Instructions
-Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size, bool debug) {
+Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_t register_size, bool debug) {
     Err e = {.type = None};
  
     if (debug) {
-        print_inst(i);
+        print_inst(*i);
     }
 
-    switch (i.type) {
+    switch (i->type) {
     case ADD:
         add(s);
         break;
@@ -212,9 +222,9 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         mod(s);
         break;
     case INC:
-        if (i.has_operand) {
-            if (i.operand >= 0 && i.operand < (long)s->size) {
-                    (*s->data[s->size - 1 - i.operand]).data++;
+        if (i->has_operand) {
+            if (i->operand >= 0 && i->operand < (long)s->size) {
+                    (*s->data[s->size - 1 - i->operand]).data++;
                 } else {
                     err(new_error(STACK_IndexOutofBounds, 
                                   "Cannot decrement element outside the stack",
@@ -225,9 +235,9 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         }
         break;
     case DEC:
-        if (i.has_operand) {
-            if (i.operand >= 0 && i.operand < (long)s->size) {
-                    (*s->data[s->size - 1 - i.operand]).data--;
+        if (i->has_operand) {
+            if (i->operand >= 0 && i->operand < (long)s->size) {
+                    (*s->data[s->size - 1 - i->operand]).data--;
             } else {
                 err(new_error(STACK_IndexOutofBounds, 
                               "Cannot decrement element outside the stack",
@@ -238,24 +248,24 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         }
         break;
     case DUPE:
-        if (i.has_operand) {
-            dupe(s, i.operand);
+        if (i->has_operand) {
+            dupe(s, i->operand);
         } else {
             dupe(s, 0);
         }
         break;
     case PUSH:
-        if (i.has_operand) {
-            push(s, i.operand);
+        if (i->has_operand) {
+            push(s, i->operand);
         } else {
             err(new_error(INST_MissingParameters, "Parameters missing from instuction", 
                           __LINE__, __FILE__));
         }
         break;
     case PUSH_LIT: {
-        if (i.has_operand) {
-                for (size_t I = 0; I < (size_t)strlen(i.literal); ++I) {
-                    push(s, i.literal[I]); 
+        if (i->has_operand) {
+                for (size_t I = 0; I < (size_t)strlen(i->literal); ++I) {
+                    push(s, i->literal[I]); 
                 }
         } else {
             err(new_error(INST_MissingParameters, "Parameters missing from instuction", 
@@ -264,49 +274,49 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         }
         break;
     case JMP:
-        jump(i, ip);
+        jump(i, lt, ip);
         break;
     case JMP_GT:
-        if (peek(s)->data > i.operator) {
-            jump(i, ip);
+        if (peek(s)->data > i->operator) {
+            jump(i, lt, ip);
         } 
         break;
     case JMP_GTEQ:
-        if (peek(s)->data >= i.operator) {
-            jump(i, ip);
+        if (peek(s)->data >= i->operator) {
+            jump(i, lt, ip);
         } 
         break;
     case JMP_LT:
-        if (peek(s)->data < i.operator) {
-            jump(i, ip);
+        if (peek(s)->data < i->operator) {
+            jump(i, lt, ip);
         } 
         break;
     case JMP_LTEQ:
-        if (peek(s)->data <= i.operator) {
-            jump(i, ip);
+        if (peek(s)->data <= i->operator) {
+            jump(i, lt, ip);
         } 
         break;
     case JMP_EQ:
-        if (peek(s)->data == i.operator) {
-            jump(i, ip);
+        if (peek(s)->data == i->operator) {
+            jump(i, lt, ip);
         } 
         break;
     case JMP_NEQ:
-        if (peek(s)->data != i.operator) {
-            jump(i, ip);
+        if (peek(s)->data != i->operator) {
+            jump(i, lt, ip);
         } 
         break;
     case STOP:
         e.type = MV_Stop;
         return e;
     case DUMP: {
-            if (!i.has_operand) {
+            if (!i->has_operand) {
                 printf("--------------\n");
                 print(s);
                 printf("--------------\n");
-            } else if (i.has_operand) {
-                if (i.operand >= 0 && i.operand < (long)s->size) {
-                    print_node(*s->data[s->size - 1 - i.operand]);
+            } else if (i->has_operand) {
+                if (i->operand >= 0 && i->operand < (long)s->size) {
+                    print_node(*s->data[s->size - 1 - i->operand]);
                 } else {
                     err(new_error(STACK_IndexOutofBounds, "Index out of bounds", 
                                   __LINE__, __FILE__));
@@ -315,13 +325,13 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         }
         break;
     case PRINT: {
-            if (!i.has_operand) {
+            if (!i->has_operand) {
                 printf("--------------\n");
                 print_ascii(s);
                 printf("--------------\n");
-            } else if (i.has_operand) {
-                if (i.operand >= 0 && i.operand < (long)s->size) {
-                    print_node_ascii(*s->data[s->size - 1 - i.operand], true);
+            } else if (i->has_operand) {
+                if (i->operand >= 0 && i->operand < (long)s->size) {
+                    print_node_ascii(*s->data[s->size - 1 - i->operand], true);
                 } else {
                     err(new_error(STACK_IndexOutofBounds, "Index out of bounds", 
                                   __LINE__, __FILE__));
@@ -330,22 +340,24 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
         }
         break;
     case MOV:
-        move(s, registers, register_size, i);
+        move(s, registers, register_size, *i);
         break;
     case POP: {
-            if (i.has_operand) {
+            if (i->has_operand) {
                 Node node = pop(s);
-                if (i.operand >= (long)register_size || i.operand < 0) {
+                if (i->operand >= (long)register_size || i->operand < 0) {
                     err(new_error(STACK_IndexOutofBounds, 
                                   "Cannot pop into register that doesn't exist", 
                                   __LINE__, __FILE__));
                 }
 
-                registers[i.operand] = (long)node.data;
+                registers[i->operand] = (long)node.data;
             } else {
                 pop(s);
             }
         }
+        break;
+    case LABEL:
         break;
     case EMPTY:
         break;
@@ -354,7 +366,6 @@ Err execute(Stack* s, Inst i, size_t* ip, long* registers, size_t register_size,
     if (debug) {
         print(s);
         printf("--------------\n");
-
     }
 
     return e;
