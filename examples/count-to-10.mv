@@ -1,7 +1,7 @@
-push 0
+push 0 ; Push the initial 0 to the stack
 
-dupe 0
-inc 0
+dupe 0 ; duplicate the top of the stack
+inc 0 ; increment the top of the stack
 
-jmp_lt 1 10
-dump
+jmp_lt 1 10 ; jump to the begining of the loop if the top of the stack is less than 10
+dump ; print the integer representation
