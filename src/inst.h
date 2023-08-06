@@ -189,6 +189,13 @@ void jump(Inst* i, LabelTable lt, size_t* ip) {
     size_t jp;
     if (i->literal && !i->has_operand) {
         Label label = lt.labels[hash(i->literal, PROGRAM_MAX_SIZE)];
+        
+        if (label.name == NULL) {
+            printf("Label: %s\n", i->literal);
+            err(new_error(INST_LabelNotFound, "Label not found", 
+                          __LINE__, __FILE__));
+        }
+
         jp = label.jump_point;
     } else if (i->has_operand && i->literal == NULL) {
         jp = i->operand - 1;

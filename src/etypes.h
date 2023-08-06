@@ -23,6 +23,7 @@ typedef enum {
     INST_IllegalInstruction,
     INST_TooManyParameters,
     INST_MissingParameters,
+    INST_LabelNotFound,
 } ErrType;
 
 const char* err_type_to_str(ErrType e) {
@@ -45,6 +46,7 @@ const char* err_type_to_str(ErrType e) {
         case INST_IllegalInstruction: return "INST_IllegalInstruction";
         case INST_TooManyParameters: return "INST_TooManyParameters";
         case INST_MissingParameters: return "INST_MissingParameters";
+        case INST_LabelNotFound: return "INST_LabelNotFound";
         default: return "Unknown Error";
     }
 }

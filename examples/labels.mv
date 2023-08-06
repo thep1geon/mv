@@ -1,6 +1,6 @@
-push 10
-push 10
-add
+push 4
+push 5
+mult
 
 jmp_eq equal 20
 

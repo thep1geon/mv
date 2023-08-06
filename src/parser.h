@@ -124,7 +124,7 @@ Inst parse_line(char* line) {
                 i.literal = substr(operand, 0, strlen(operand));
                 i.has_operand = false;
             } else {
-                if (!isnum(operand)) {
+                if (!isnum(operand) && operand[0] != '-') {
                     i.operand = operand[0]; 
                 } else {
                     i.operand = atoi(operand);
