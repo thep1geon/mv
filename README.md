@@ -220,5 +220,35 @@ Output:
 --------------
 ```
 
+## Abc
+```
+push A
+
+dupe 0
+push 32
+add
+
+jmp_eq 11 z
+
+push 32
+
+push 32
+dupe 2
+sub
+
+inc 0
+
+jmp_lteq 1 Z
+
+print
+```
+--------------
+Output:
+```
+--------------
+Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
+--------------
+```
+
 # NOTE:
 comments are not natively supported
