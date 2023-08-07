@@ -90,6 +90,7 @@ Inst parse_line(char* line) {
     i.has_operand = false;
     i.has_operator = false;
     i.literal = NULL;
+    i.line_number = 0;
 
     if (line[0] == ';') {
         return i;
@@ -141,7 +142,7 @@ Inst parse_line(char* line) {
             }
 
             if (!isnum(operator)) {
-                i.operator = (char)operator[0];
+                i.operator = (char)operator[0]; 
             } else {
                 i.operator = atoi(operator);
             }

@@ -1,0 +1,4 @@
+push 15
+mov 0 .
+mov 0
+dump

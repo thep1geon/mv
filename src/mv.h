@@ -58,10 +58,12 @@ void mv_run(Mv mv, bool debug) {
                         &i, 
                         mv.registers, 
                         NUM_REGISTERS, 
-                        debug);
+                        mv.program.file,
+                        debug); 
 
         if (e.type != None) {
             mv.halt = true;
+            err(e);
         }
     }
 }
@@ -114,6 +116,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
     ssize_t read;
 
     size_t ip = 0;
+    int linenumber = 1;
     int program_size = count_lines(file_path);
     Inst* p = (Inst*) malloc(sizeof(Inst) * program_size);
 
@@ -124,6 +127,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
     
     while ((read = getline(&line, &len, f)) > 0) {
         Inst i = parse_line(line);  
+        i.line_number = linenumber++;
 
         if (i.type == LABEL) {
             size_t index = hash(i.literal, PROGRAM_MAX_SIZE);
@@ -137,7 +141,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
         }
     }
 
-    Program program = new_program(p, program_size);
+    Program program = new_program(p, program_size, file_path);
     mv_set_program(mv, program);
 
     free(p);
