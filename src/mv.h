@@ -70,6 +70,14 @@ void mv_run(Mv mv, bool debug) {
 
 void mv_close(Mv mv) {
     release(&mv.stack);
+
+    for (size_t i = 0; i < mv.program.size; i++) {
+        Inst inst = mv.program.inst[i];
+        if (inst.literal) {
+            free(inst.literal);
+        }
+    }
+
 }
 
 inline void mv_dump(Mv mv) { print(mv.stack); }

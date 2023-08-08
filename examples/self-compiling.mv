@@ -1,4 +1,3 @@
-push 15
-mov 0 .
-mov 0
-dump
+push_lit Hello World!
+pop
+print

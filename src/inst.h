@@ -39,6 +39,7 @@ typedef enum {
     PRINT,
     LABEL,
     EMPTY, // Empty instruction, used for empty lines in the .mv file
+    ILL,
 } Inst_Type;
 
 char* operation_to_str(Inst_Type i) {
@@ -67,6 +68,7 @@ char* operation_to_str(Inst_Type i) {
         case LABEL: return "LABEL";
         case MOV: return "MOV";
         case POP: return "POP";
+        case ILL: return "ILL";
         default: return "Unknown Instruction";
     }
 }
@@ -108,7 +110,7 @@ static void move(Stack* s, long* registers, size_t register_size, Inst i, Err* e
         }
     } 
 
-    if (i.has_operand && i.has_operator) {
+    else if (i.has_operand && i.has_operator) {
         registers[i.operand] = i.operator;
         return;
     }
@@ -380,6 +382,8 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
         break;
     case EMPTY:
         break;
+    case ILL:
+        err(new_error(INST_IllegalInstruction, "Instruction not found", i->line_number, file_path));
     }
 
     return e;

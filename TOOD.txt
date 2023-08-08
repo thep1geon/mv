@@ -1,4 +1,0 @@
-[ ] - . operator
-[ ] - Better error messages FIX THE STACK OVERFLOW ERR
-[X] - comments
-[X] - labels

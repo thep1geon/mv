@@ -79,9 +79,7 @@ Inst_Type str_to_type(const char* str) {
 
     printf("Unknown Instruction: %s\n", str);
 
-    err(new_error(INST_IllegalInstruction, "Instruction not found", 
-                  __LINE__, __FILE__));
-    return STOP;
+    return ILL;
 }
 
 Inst parse_line(char* line) {
@@ -96,8 +94,8 @@ Inst parse_line(char* line) {
         return i;
     }
 
-    char new_line[strlen(line)];
-    memcpy(new_line, line, strlen(line)+1);
+    char* new_line = (char*)malloc(strlen(line));
+    memcpy(new_line, line, strlen(line));
 
     char* token = strtok(new_line, " ");
     char* type = NULL;
@@ -112,6 +110,7 @@ Inst parse_line(char* line) {
         } else if (operand == NULL) {
             operand = token;
             remove_newline(operand);
+
 
             if (operand[0] == ';') {
                 return i;
@@ -136,6 +135,7 @@ Inst parse_line(char* line) {
         } else if (operator == NULL) {
             operator = token;
             remove_newline(operator);
+
 
             if (operator[0] == ';') {
                 return i;

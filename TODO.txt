@@ -1,0 +1,4 @@
+[ ] - . operator
+[X] - Better error messages
+[X] - comments
+[X] - labels

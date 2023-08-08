@@ -7,7 +7,7 @@ A ***very*** simple virtual machine written in C. Inspired by Tsoding.
 
 # Quick Start
 ```console
-$ ./mv <example program>
+$ ./mv <example program> [-debug]
 ```
 # Instructions
 
