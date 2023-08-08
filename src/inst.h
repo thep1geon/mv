@@ -94,6 +94,12 @@ void print_inst(Inst i) {
 static void move(Stack* s, long* registers, size_t register_size, Inst i, Err* e, const char* file_path) {
     if (!i.has_operator) {
         if (i.has_operand && i.operand >= 0 && i.operand < (long) register_size) {
+
+            if (s->size + 1 == STACK_CAP) {
+                err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                              i.line_number, file_path));
+            }
+
             push(s, registers[i.operand]);
             return;
         } else {
@@ -189,7 +195,7 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
                             i->line_number, file_path);
                 break;
             }
-
+            
             push(s, pop(s).data/pop(s).data);
         }
         break;
@@ -234,6 +240,11 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
         }
         break;
     case DUPE:
+        if (s->size + 1 == STACK_CAP) {
+            err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                          i->line_number, file_path));
+        }
+
         if (i->has_operand) {
             if (i->operand >= (long)s->size) {
                 e = new_error(STACK_IndexOutofBounds, 
@@ -241,6 +252,7 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
                               i->line_number, file_path);
                 break;
             }
+
             push(s, s->data[s->size - 1 - i->operand]->data);
         } else {
             push(s, s->data[s->size - 1]->data);
@@ -248,6 +260,11 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
         break;
     case PUSH:
         if (i->has_operand) {
+            if (s->size + 1 == STACK_CAP) {
+                err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                              i->line_number, file_path));
+            }
+
             push(s, i->operand);
         } else {
             e = new_error(INST_MissingParameters, "Parameters missing from instuction", 
@@ -258,6 +275,11 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
     case PUSH_LIT: {
         if (i->has_operand) {
                 for (size_t I = 0; I < (size_t)strlen(i->literal); ++I) {
+                    if (s->size + 1 >= STACK_CAP) {
+                        err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                                      i->line_number, file_path));
+                    }
+
                     push(s, i->literal[I]); 
                 }
         } else {
