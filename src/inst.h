@@ -84,7 +84,7 @@ typedef struct {
 } Inst;
 
 void print_inst(Inst i) {
-    printf("Inst name: %s, operand: %zu, operator: %zu, literal: %s, Line Number: %d\n", 
+    printf("Inst type: %s, operand: %zu, operator: %zu, literal: %s, Line Number: %d\n", 
            operation_to_str(i.type), 
            i.operand, 
            i.operator, 
@@ -329,9 +329,7 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
         return e;
     case DUMP: {
             if (!i->has_operand) {
-                printf("--------------\n");
                 print(s);
-                printf("--------------\n");
             } else if (i->has_operand) {
                 if (i->operand >= 0 && i->operand < (long)s->size) {
                     print_node(*s->data[s->size - 1 - i->operand]);
@@ -345,9 +343,7 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
         break;
     case PRINT: {
             if (!i->has_operand) {
-                printf("--------------\n");
                 print_ascii(s);
-                printf("--------------\n");
             } else if (i->has_operand) {
                 if (i->operand >= 0 && i->operand < (long)s->size) {
                     print_node_ascii(*s->data[s->size - 1 - i->operand], true);

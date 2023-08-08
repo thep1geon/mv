@@ -8,6 +8,7 @@
 #include "label.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -83,6 +84,7 @@ Inst_Type str_to_type(const char* str) {
 }
 
 Inst parse_line(char* line) {
+    // remove_newline(line);
     Inst i = {0};
     i.type = EMPTY;
     i.has_operand = false;
@@ -94,8 +96,16 @@ Inst parse_line(char* line) {
         return i;
     }
 
-    char* new_line = (char*)malloc(strlen(line));
-    memcpy(new_line, line, strlen(line));
+    char* new_line = (char*)malloc(strlen(line) + 1);
+    if (new_line != NULL) {
+        size_t line_length = strlen(line);
+        for (size_t I = 0; I < line_length; ++I) {
+            new_line[I] = line[I];
+        }
+        new_line[line_length] = '\0';
+    } else {
+        printf("Malloc Fail\n");
+    }
 
     char* token = strtok(new_line, " ");
     char* type = NULL;
@@ -148,6 +158,8 @@ Inst parse_line(char* line) {
             }
 
             i.has_operator = true;
+        } else {
+            break;
         }
 
         token = strtok(NULL, " ");
@@ -155,7 +167,11 @@ Inst parse_line(char* line) {
     }
 
     if (i.type == LABEL) {
-        i.literal = substr(line, 0, strlen(line)-2);
+        if (i.literal != NULL) {
+            free(i.literal);
+        }
+
+        i.literal = substr(line, 9, strlen(line));
     }
 
     return i;
