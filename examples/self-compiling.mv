@@ -1,7 +1,0 @@
-push_lit push_lit Hello
-pop ; pushing World causes an error??
-push_lit  World!
-push_lit pop
-push_lit print
-pop
-print
