@@ -6,6 +6,7 @@
 #include "inst.h"
 #include "stack.h"
 #include "label.h"
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,9 +49,11 @@ char* substr(const char* src, int start, int end) {
 }
 
 Inst_Type str_to_type(const char* str) {
-    if (str[strlen(str)-1] == ':') {return LABEL;}
+    if (strlen(str) >= 1) {
+        if (str[strlen(str)-1] == ':') {return LABEL;}
+    }
 
-    else if (strcmp(str, "add") == 0) { return ADD;}
+    if (strcmp(str, "add") == 0) { return ADD;}
     else if (strcmp(str, "sub") == 0) { return SUB;}
     else if (strcmp(str, "div") == 0) { return DIV;}
     else if (strcmp(str, "mod") == 0) { return MOD;}
@@ -96,7 +99,7 @@ Inst parse_line(char* line) {
         return i;
     }
 
-    char* new_line = (char*)malloc(strlen(line) + 1);
+    char* new_line = (char*)malloc(strlen(line)+1);
     if (new_line != NULL) {
         size_t line_length = strlen(line);
         for (size_t I = 0; I < line_length; ++I) {
@@ -167,11 +170,7 @@ Inst parse_line(char* line) {
     }
 
     if (i.type == LABEL) {
-        if (i.literal != NULL) {
-            free(i.literal);
-        }
-
-        i.literal = substr(line, 9, strlen(line));
+        i.literal = substr(line, 0, strlen(line)-2);
     }
 
     return i;
