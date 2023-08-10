@@ -94,6 +94,11 @@ void print_inst(Inst i) {
 
 // What happens when that instruction is found goes here
 static void move(Stack* s, long* registers, size_t register_size, Inst i, Err* e, const char* file_path) {
+    if (i.literal && i.has_operand) {
+        registers[i.operand] = peek(s)->data;
+        return;
+    }
+
     if (!i.has_operator) {
         if (i.has_operand && i.operand >= 0 && i.operand < (long) register_size) {
 
@@ -261,17 +266,18 @@ Err execute(Stack* s, Inst* i, LabelTable lt, size_t* ip, long* registers, size_
         }
         break;
     case PUSH:
-        if (i->has_operand) {
-            if (s->size + 1 == STACK_CAP) {
-                err(new_error(STACK_StackOverflow, "Stack Overflow", 
-                              i->line_number, file_path));
-            }
+        if (s->size + 1 == STACK_CAP) {
+            err(new_error(STACK_StackOverflow, "Stack Overflow", 
+                          i->line_number, file_path));
+        }
 
+        if (i->literal) {
+            push(s, peek(s)->data); 
+        } else if (i->has_operand) {
             push(s, i->operand);
         } else {
             e = new_error(INST_MissingParameters, "Parameters missing from instuction", 
                           i->line_number, file_path);
-            break;
         }
         break;
     case PUSH_LIT: {

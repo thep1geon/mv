@@ -1,3 +1,4 @@
 [X] - Better error messages
 [X] - comments
 [X] - labels
+[X] - Dot Operator

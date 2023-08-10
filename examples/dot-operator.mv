@@ -1,0 +1,11 @@
+mov 0 59
+
+mov 0
+
+mov 7 .
+
+mov 7
+
+push .
+
+dump

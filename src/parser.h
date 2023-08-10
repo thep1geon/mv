@@ -107,7 +107,7 @@ Inst parse_line(char* line) {
         }
         new_line[line_length] = '\0';
     } else {
-        printf("Malloc Fail\n");
+        fprintf(stderr, "Malloc Fail\n");
     }
 
     char* token = strtok(new_line, " ");
@@ -145,10 +145,14 @@ Inst parse_line(char* line) {
                 i.has_operand = true;
             }
 
+            if (operand[0] == '.') {
+                i.literal = ".";
+                i.has_operand = false;
+            }
+
         } else if (operator == NULL) {
             operator = token;
             remove_newline(operator);
-
 
             if (operator[0] == ';') {
                 return i;
@@ -161,18 +165,23 @@ Inst parse_line(char* line) {
             }
 
             i.has_operator = true;
+
+            if (operator[0] == '.') {
+                i.literal = ".";
+                i.has_operator = false;
+            }
         } else {
             break;
         }
 
         token = strtok(NULL, " ");
-
     }
 
     if (i.type == LABEL) {
         i.literal = substr(line, 0, strlen(line)-2);
     }
 
+    free(new_line);
     return i;
 }
 

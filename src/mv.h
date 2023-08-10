@@ -71,12 +71,12 @@ void mv_run(Mv mv, bool debug) {
 void mv_close(Mv mv) {
     release(&mv.stack);
 
-    for (size_t i = 0; i < mv.program.size; i++) {
-        Inst inst = mv.program.inst[i];
-        if (inst.literal) {
-            free(inst.literal);
-        }
-    }
+    // for (size_t i = 0; i < mv.program.size; i++) {
+    //     Inst inst = mv.program.inst[i];
+    //     if (inst.literal) {
+    //         free(inst.literal);
+    //     }
+    // }
 
 }
 
@@ -147,6 +147,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
         if (i.type != EMPTY) {
             p[ip++] = i;
         }
+
     }
 
     Program program = new_program(p, program_size, file_path);
