@@ -10,26 +10,23 @@ typedef struct {
     ErrType type;
     size_t line_number;
     const char* file;
-    const char* msg;
 } Err;
 
-Err new_error(ErrType type, const char* msg, size_t line_number, const char* file_name) {
-    return (Err){.type = type, .line_number = line_number, .msg = msg, .file = file_name};
+Err new_error(ErrType type, size_t line_number, const char* file_name) {
+    return (Err){.type = type, .line_number = line_number, .file = file_name};
 }
 
-void err(Err e) {
-    fprintf(stderr, "%s ERROR at line %zu: %s\n", 
+void fatal_err(Err e) {
+    fprintf(stderr, "File: %s >> ERROR!! (Line %zu) -> %s\n", 
             e.file, e.line_number, err_type_to_str(e.type));
 
-    fprintf(stderr, "Message: %s\n", e.msg);
+    fprintf(stderr, "Exit Code: %d\n", e.type);
     exit(e.type);
 }
 
 void non_failing_err(Err e) {
-    fprintf(stderr, "NON FATAL ERROR at line %zu: %s\n", 
-            e.line_number, err_type_to_str(e.type));
-
-    fprintf(stderr, "Message: %s\n", e.msg);
+    fprintf(stderr, "File: %s >> NON FATAL ERROR! (Line %zu) ->  %s\n", 
+            e.file, e.line_number, err_type_to_str(e.type));
 }
 
 #endif //__ERR_H

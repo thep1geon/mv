@@ -48,7 +48,7 @@ char* substr(const char* src, int start, int end) {
     return dest;
 }
 
-Inst_Type str_to_type(const char* str) {
+InstType str_to_type(const char* str) {
     if (strlen(str) >= 1) {
         if (str[strlen(str)-1] == ':') {return LABEL;}
     }
@@ -79,6 +79,10 @@ Inst_Type str_to_type(const char* str) {
     else if (strcmp(str, "jmp_lteq") == 0) { return JMP_LTEQ;}
     else if (strcmp(str, "jmp_eq") == 0) { return JMP_EQ;}
     else if (strcmp(str, "jmp_neq") == 0) { return JMP_NEQ;}
+
+    else if (strcmp(str, "mem_read") == 0) {return MEM_READ;}
+    else if (strcmp(str, "mem_write") == 0) {return MEM_WRITE;}
+    
     else if (strcmp(str, "") == 0) { return EMPTY;}
 
     printf("Unknown Instruction: %s\n", str);
@@ -130,7 +134,7 @@ Inst parse_line(char* line) {
             }
                     
             if (i.type == PUSH_LIT) {
-                i.literal = substr(line, 9, strlen(line));
+                i.literal = substr(line, 10, strlen(line)-1);
             }
 
             if (i.type >= JMP && i.type <= JMP_NEQ) {

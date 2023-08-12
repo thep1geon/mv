@@ -1,0 +1,4 @@
+push_lit "Hello World!"
+pop
+
+;; H e l l o  W o r l d !
