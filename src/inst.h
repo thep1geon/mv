@@ -38,6 +38,7 @@ typedef enum {
     
     MEM_READ,
     MEM_WRITE,
+    STR,
     
     RET,
     CALL,
@@ -77,6 +78,7 @@ char* operation_to_str(InstType i) {
         case MEM_READ:  return "MEM_READ";
         case MEM_WRITE: return "MEM_WRITE";
         case RET:       return "RET";
+        case STR:       return "STR";
         case CALL:      return "CALL";
         case STOP:      return "STOP";
         case DUMP:      return "DUMP";

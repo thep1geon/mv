@@ -5,14 +5,13 @@ mult
 jmp_eq equal 20
 
 pop
-push_lit Not Equal
+push_lit "Not Equal"
 jmp end
 
 equal:
 pop
-push_lit Equal
+push_lit "Equal"
 jmp end
 
 end:
-pop ; pop the new line character
 print

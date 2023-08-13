@@ -7,4 +7,5 @@ mem_write 3 D
 mem_write 4 10
 
 mov 0 0
+push 42
 call print_str

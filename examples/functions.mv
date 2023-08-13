@@ -7,3 +7,5 @@ func hello2:
 push_lit "This is another Function!"
 print
 ret
+
+call hello

@@ -1,0 +1,25 @@
+include "std.mv"
+
+str "Jello World!"
+dupe 0
+pop 0
+add
+mem_write . 10
+inc 0
+mem_write . 0
+pop
+
+str "Another Jello World!"
+dupe 0
+pop 2
+add
+mem_write . 10
+inc 0
+mem_write . 0
+
+
+call print_str
+
+mov 2
+pop 0
+call print_str

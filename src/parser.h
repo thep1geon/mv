@@ -93,6 +93,7 @@ InstType str_to_type(const char* str) {
 
     else if (strcmp(str, "mem_read") == 0) {return MEM_READ;}
     else if (strcmp(str, "mem_write") == 0) {return MEM_WRITE;}
+    else if (strcmp(str, "str") == 0) {return STR;}
 
     else if (strcmp(str, "ret") == 0) {return RET;}
     else if (strcmp(str, "call") == 0) {return CALL;}
@@ -162,6 +163,11 @@ Inst parse_line(char* line) {
 
             if (i.type == FUNC) {
                 i.literal = substr(operand, 0, strlen(operand)-1);
+                i.has_literal = true;
+            }
+
+            if (i.type == STR) {
+                i.literal = substr(line, 5, strlen(line)-2);
                 i.has_literal = true;
             }
 

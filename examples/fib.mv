@@ -12,5 +12,5 @@ add
 mov 9
 inc 0
 jmp_lt loop 15 ;; loops 15 times
-pop ;; pop the loop counter
+pop ;; the loop counter
 dump

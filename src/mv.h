@@ -28,6 +28,7 @@ typedef struct {
     Program program;
     Stack* stack;
     int heap[HEAP_SIZE];
+    int heap_size;
     long registers[NUM_REGISTERS];
     LabelTable label_table;
     bool halt;
@@ -41,10 +42,11 @@ void mv_program_from_file(Mv* mv, const char* file_path);
 void mv_set_program(Mv* mv, Program p);
 Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug);
 ErrType mv_include_file(Mv* mv, char* file_path);
+size_t mv_find_memory(Mv mv, size_t length);
 
 Mv new_mv(void) {
     Stack* s = new_stack();
-    Mv mv = {.stack = s, .halt = false};
+    Mv mv = {.stack = s, .halt = false, .heap_size = HEAP_SIZE};
     return mv;
 }
 
@@ -209,6 +211,27 @@ ErrType mv_include_file(Mv* mv, char* file_path) {
 
     fclose(f);
     return None;
+}
+
+size_t mv_find_memory(Mv mv, size_t length) {
+    for (size_t i = 0; i < mv.heap_size - length; ++i) {
+        size_t j;
+        for (j = 0; j < length; ++j) {
+            if (mv.heap[i + j] != 0) {
+                break; 
+            }
+
+            if (mv.heap[i+j] == 0 && mv.heap[i+j-1] != 0) {
+                break;
+            }
+        }
+
+        if (j == length) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
@@ -509,6 +532,22 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
             mv->registers[7] = 0;
         } else {
             e.type = STACK_StackUnderflow;
+        }
+        }
+        break;
+    case STR: {
+        size_t len = strlen(i->literal);
+        int begin = mv_find_memory(*mv, len+1); 
+        if (begin != -1) {
+            size_t j;
+            for (j = begin; j < begin + len; ++j) {
+                mv->heap[j] = *i->literal++;
+            }  
+            mv->heap[++j] = '\0';
+            push(mv->stack, len);
+            push(mv->stack, begin);
+        } else {
+            e.type = MV_MemFail;
         }
     }
         break;

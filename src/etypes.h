@@ -19,6 +19,7 @@ typedef enum {
     MV_Stop,
     MV_FileOpenFail,
     MV_ProgramNotFound,
+    MV_MemFail,
 
     INST_IllegalInstruction,
     INST_TooManyParameters,
@@ -43,6 +44,7 @@ const char* err_type_to_str(ErrType e) {
         case MV_Stop: return "MV_Stop";
         case MV_FileOpenFail: return "MV_FileOpenFail";
         case MV_ProgramNotFound: return "MV_ProgramNotFound";
+        case MV_MemFail: return "MV_MemFail";
         case INST_IllegalInstruction: return "INST_IllegalInstruction";
         case INST_TooManyParameters: return "INST_TooManyParameters";
         case INST_MissingParameters: return "INST_MissingParameters";
