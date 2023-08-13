@@ -3,8 +3,8 @@
 [X] - labels
 [X] - Dot Operator
 [ ] - Better Strings
-[X] - Memory?
-[ ] - Make some built in functions; print_str, strlen, stack_size
+[X] - Memory
+[ ] - Make some built in functions; print_str, strlen
+[ ] - Make some utility instructions like: stack_size
 [X] - Functions
 [X] - Including from other files
-[ ] - Call Stack??

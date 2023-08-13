@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "err.h"
 #include "etypes.h"
@@ -143,12 +144,30 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
     fclose(f);
 }
 
+bool file_exists(const char* path) {
+    return access(path, F_OK) != -1;
+}
+
 ErrType mv_include_file(Mv* mv, char* file_path) {
+    char* include_path = "/home/magic/mv/include/";
+    char file_include_path[100];
+    snprintf(file_include_path, sizeof(file_include_path), "%s%s", include_path, file_path);
+
     int old_program_size = mv->program.size;
-    int new_program_size = old_program_size + count_lines(file_path); 
+    int new_program_size = old_program_size;
+
+    if (file_exists(file_include_path)) {
+        new_program_size += count_lines(file_include_path); 
+    } else if (file_exists(file_path)) {
+        new_program_size += count_lines(file_path);
+    } else {
+        fprintf(stderr, "Error opening file: %s\n", file_path);
+        return -1; // Return -1 to indicate an error
+    }
+
     mv->program.size = new_program_size;
 
-    FILE* f = fopen(file_path, "r");
+    FILE* f;
     char* line = NULL;
     size_t len = 0;
     ssize_t read;
@@ -156,10 +175,20 @@ ErrType mv_include_file(Mv* mv, char* file_path) {
     
     int linenumber = mv->program.inst[old_program_size-1].line_number; // Finding the line number of the last instruction
     
-    if (f == NULL) {
-        return MV_FileOpenFail;
+    if (file_exists(file_include_path)) {
+        f = fopen(file_include_path, "r");
+
+        if (f == NULL) {
+            return MV_FileOpenFail;
+        }
+    } else {
+        f = fopen(file_path, "r");
+
+        if (f == NULL) {
+            return MV_FileOpenFail;
+        }
     }
-    
+
     while ((read = getline(&line, &len, f)) > 0) {
         Inst i = parse_line(line);  
         i.line_number = linenumber++;
