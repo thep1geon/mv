@@ -3,5 +3,8 @@
 [X] - labels
 [X] - Dot Operator
 [ ] - Better Strings
-[ ] - Memory? ## Implement Error handling for mem_write ##
+[X] - Memory?
 [ ] - Make some built in functions; print_str, strlen, stack_size
+[X] - Functions
+[ ] - Including from other files
+[ ] - Call Stack??

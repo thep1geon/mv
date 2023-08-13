@@ -1,0 +1,6 @@
+func hello:
+push_lit "This is a Function!"
+print
+ret ;; Cant forget the return statement
+
+call hello

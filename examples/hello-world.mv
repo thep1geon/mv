@@ -1,4 +1,3 @@
-push_lit "Hello, world!"
-pop ; the new line character
+push_lit "Hello, World!"
 
 print

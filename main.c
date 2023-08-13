@@ -1,3 +1,5 @@
+#define STACK_CAP 10240
+
 #include "src/mv.h"
 #include <string.h>
 

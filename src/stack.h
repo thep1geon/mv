@@ -8,7 +8,7 @@
 #include "err.h"
 
 #ifndef STACK_CAP
-#define STACK_CAP 10240
+#define STACK_CAP 1024
 #endif
 
 // boolean stuff

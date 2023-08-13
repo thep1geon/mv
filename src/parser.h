@@ -49,7 +49,9 @@ char* substr(const char* src, int start, int end) {
 }
 
 InstType str_to_type(const char* str) {
-    if (strlen(str) >= 1) {
+    if (strcmp(str, "func") == 0) {return FUNC;}
+
+    else if (strlen(str) >= 1) {
         if (str[strlen(str)-1] == ':') {return LABEL;}
     }
 
@@ -82,6 +84,9 @@ InstType str_to_type(const char* str) {
 
     else if (strcmp(str, "mem_read") == 0) {return MEM_READ;}
     else if (strcmp(str, "mem_write") == 0) {return MEM_WRITE;}
+
+    else if (strcmp(str, "ret") == 0) {return RET;}
+    else if (strcmp(str, "call") == 0) {return CALL;}
     
     else if (strcmp(str, "") == 0) { return EMPTY;}
 
@@ -134,10 +139,14 @@ Inst parse_line(char* line) {
             }
                     
             if (i.type == PUSH_LIT) {
-                i.literal = substr(line, 10, strlen(line)-1);
+                i.literal = substr(line, 10, strlen(line)-2);
             }
 
-            if (i.type >= JMP && i.type <= JMP_NEQ) {
+            if (i.type == FUNC) {
+                i.literal = substr(operand, 0, strlen(operand)-1);
+            }
+
+            if ((i.type >= JMP && i.type <= JMP_NEQ) || (i.type == CALL)) {
                 i.literal = substr(operand, 0, strlen(operand));
                 i.has_operand = false;
             } else {

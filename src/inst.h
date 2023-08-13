@@ -36,44 +36,55 @@ typedef enum {
     MEM_READ,
     MEM_WRITE,
     
+    RET,
+    CALL,
+
     STOP,
     DUMP,
     PRINT,
+
     LABEL,
+    FUNC,
+
     EMPTY, // Empty instruction, used for empty lines in the .mv file
+    INCLUDE,
     ILL,
 } InstType;
 
 char* operation_to_str(InstType i) {
     switch (i) {
-        case ADD: return "ADD";
-        case SUB: return "SUB";
-        case DIV: return "DIV";
-        case MOD: return "MOD";
-        case MULT: return "MULT";
-        case INC: return "INC";
-        case DEC: return "DEC";
-        case DUPE: return "DUPE";
-        case PUSH: return "PUSH";
-        case PUSH_LIT: return "PUSH_LIT";
-        case PRINT: return "PRINT";
-        case JMP: return "JMP";
-        case JMP_GT: return "JMP_GT";
-        case JMP_GTEQ: return "JMP_GTEQ";
-        case JMP_LT: return "JMP_LT";
-        case JMP_LTEQ: return "JMP_LTEQ";
-        case JMP_EQ: return "JMP_EQ";
-        case JMP_NEQ: return "JMP_NEQ";
-        case MEM_READ: return "MEM_READ";
+        case ADD:       return "ADD";
+        case SUB:       return "SUB";
+        case DIV:       return "DIV";
+        case MOD:       return "MOD";
+        case MULT:      return "MULT";
+        case INC:       return "INC";
+        case DEC:       return "DEC";
+        case DUPE:      return "DUPE";
+        case PUSH:      return "PUSH";
+        case PUSH_LIT:  return "PUSH_LIT";
+        case PRINT:     return "PRINT";
+        case JMP:       return "JMP";
+        case JMP_GT:    return "JMP_GT";
+        case JMP_GTEQ:  return "JMP_GTEQ";
+        case JMP_LT:    return "JMP_LT";
+        case JMP_LTEQ:  return "JMP_LTEQ";
+        case JMP_EQ:    return "JMP_EQ";
+        case JMP_NEQ:   return "JMP_NEQ";
+        case MEM_READ:  return "MEM_READ";
         case MEM_WRITE: return "MEM_WRITE";
-        case STOP: return "STOP";
-        case DUMP: return "DUMP";
-        case EMPTY: return "EMPTY";
-        case LABEL: return "LABEL";
-        case MOV: return "MOV";
-        case POP: return "POP";
-        case ILL: return "ILL";
-        default: return "Unknown Instruction";
+        case RET:       return "RET";
+        case CALL:      return "CALL";
+        case STOP:      return "STOP";
+        case DUMP:      return "DUMP";
+        case EMPTY:     return "EMPTY";
+        case LABEL:     return "LABEL";
+        case FUNC:      return "FUNC";
+        case MOV:       return "MOV";
+        case POP:       return "POP";
+        case INCLUDE:   return "INCLUDE";
+        case ILL:       return "ILL";
+        default:        return "Unknown Instruction";
     }
 }
 

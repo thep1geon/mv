@@ -1,10 +1,6 @@
 #ifndef __MV_H
 #define __MV_H
 
-#ifndef STACK_CAP
-#define STACK_CAP 10240
-#endif //STACK_CAP
-
 #ifndef HEAP_SIZE
 #define HEAP_SIZE 10240 // 10 kilobytes of memory should be enough
 #endif //HEAP_SIZE
@@ -125,9 +121,10 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
         Inst i = parse_line(line);  
         i.line_number = linenumber++;
 
-        if (i.type == LABEL) {
+        if (i.type == LABEL || i.type == FUNC) {
             size_t index = hash(i.literal, PROGRAM_MAX_SIZE);
             Label l = (Label) {.jump_point = ip, .name = i.literal};
+
             mv->label_table.labels[index] = l;
             mv->label_table.size++;
         }
@@ -258,13 +255,14 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         break;
     case PUSH_LIT: {
         if (i->has_operand) {
-                for (size_t I = 0; I < (size_t)strlen(i->literal); ++I) {
-                    if (mv->stack->size + 1 >= STACK_CAP) {
-                        e.type = STACK_StackOverflow;
-                    }
-
-                    push(mv->stack, i->literal[I]); 
+            for (size_t I = 0; I < (size_t)strlen(i->literal); ++I) {
+                if (mv->stack->size+1 >= STACK_CAP) {
+                    e.type = STACK_StackOverflow;
+                    break;
                 }
+
+                push(mv->stack, i->literal[I]); 
+            }
         } else {
             e.type = INST_MissingParameters;
         }
@@ -337,7 +335,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         break;
     case POP: {
             if (mv->stack->size == 0) {
-                e.type = STACK_StackUnderflow;
+                e.type = STACK_EmptyStackPop;
                 break;
             }
 
@@ -392,6 +390,28 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
             mv->heap[i->operand] = peek(mv->stack)->data;
         } else if (!i->has_operand && !i->has_operator && i->literal) {
             mv->heap[peek(mv->stack)->data] = peek(mv->stack)->data;
+        }
+        break;
+    case CALL:
+        // Put the return address into register 9
+        mv->registers[9] = *ip;
+        jump(i, mv->label_table, (size_t*)ip); // jump to the function
+        break;
+    case RET: {
+        *ip = mv->registers[9];
+        mv->registers[9] = 0;
+        }
+        break;
+    case FUNC:
+        if (mv->registers[9] == 0) {
+            // We reached a function with out calling it
+            // So we need to skip over it 
+            Inst* inst = &mv->program.inst[*ip];
+            
+            while (inst->type != RET) {
+                inst++;
+                *ip += 1;
+            }
         }
         break;
     case LABEL:
