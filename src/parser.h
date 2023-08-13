@@ -101,7 +101,7 @@ Inst parse_line(char* line) {
     i.type = EMPTY;
     i.has_operand = false;
     i.has_operator = false;
-    i.literal = NULL;
+    i.literal = malloc(100000);
     i.line_number = 0;
 
     if (line[0] == ';') {

@@ -4,3 +4,12 @@ print
 ret ;; Cant forget the return statement
 
 call hello
+
+func add_ten:
+push 10
+add
+ret
+
+push 10
+call add_ten
+dump

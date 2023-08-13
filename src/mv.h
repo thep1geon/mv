@@ -245,10 +245,10 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
             e.type = STACK_StackOverflow;
         }
 
-        if (i->literal) {
-            push(mv->stack, peek(mv->stack)->data); 
-        } else if (i->has_operand) {
+        if (i->has_operand) {
             push(mv->stack, i->operand);
+        } else if (i->literal) {
+            push(mv->stack, peek(mv->stack)->data); 
         } else {
             e.type = INST_MissingParameters;
         }
