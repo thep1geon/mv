@@ -87,6 +87,8 @@ InstType str_to_type(const char* str) {
 
     else if (strcmp(str, "ret") == 0) {return RET;}
     else if (strcmp(str, "call") == 0) {return CALL;}
+
+    else if (strcmp(str, "include") == 0) {return INCLUDE;}
     
     else if (strcmp(str, "") == 0) { return EMPTY;}
 
@@ -101,7 +103,7 @@ Inst parse_line(char* line) {
     i.type = EMPTY;
     i.has_operand = false;
     i.has_operator = false;
-    i.literal = malloc(100000);
+    i.literal = malloc(1000);
     i.line_number = 0;
 
     if (line[0] == ';') {
@@ -140,6 +142,10 @@ Inst parse_line(char* line) {
                     
             if (i.type == PUSH_LIT) {
                 i.literal = substr(line, 10, strlen(line)-2);
+            }
+
+            if (i.type == INCLUDE) {
+                i.literal = substr(operand, 1, strlen(operand)-1);
             }
 
             if (i.type == FUNC) {

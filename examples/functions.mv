@@ -3,13 +3,7 @@ push_lit "This is a Function!"
 print
 ret ;; Cant forget the return statement
 
-call hello
-
-func add_ten:
-push 10
-add
+func hello2:
+push_lit "This is another Function!"
+print
 ret
-
-push 10
-call add_ten
-dump

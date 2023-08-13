@@ -1,0 +1,4 @@
+func hello:
+push_lit "Hello World!"
+print
+ret

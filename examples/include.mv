@@ -1,1 +1,3 @@
-inlcude "abc.mv"
+include "/home/magic/mv/include/std.mv"
+
+call hello

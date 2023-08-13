@@ -12,6 +12,7 @@
 // Instructions go here
 typedef enum {
     EMPTY = 0, // Empty instruction, used for empty lines in the .mv file
+
     ADD,
     SUB,
     DIV,
@@ -23,6 +24,7 @@ typedef enum {
     DUPE,
     PUSH,
     PUSH_LIT,
+    INCLUDE,
     MOV,
     POP,
 
@@ -81,6 +83,7 @@ char* operation_to_str(InstType i) {
         case FUNC:      return "FUNC";
         case MOV:       return "MOV";
         case POP:       return "POP";
+        case INCLUDE:   return "INCLUDE";
         case ILL:       return "ILL";
         default:        return "Unknown Instruction";
     }

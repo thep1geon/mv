@@ -6,5 +6,5 @@
 [X] - Memory?
 [ ] - Make some built in functions; print_str, strlen, stack_size
 [X] - Functions
-[ ] - Including from other files
+[X] - Including from other files
 [ ] - Call Stack??

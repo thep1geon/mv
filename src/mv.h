@@ -39,6 +39,7 @@ void mv_close(Mv mv);
 void mv_program_from_file(Mv* mv, const char* file_path);
 void mv_set_program(Mv* mv, Program p);
 Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug);
+ErrType mv_include_file(Mv* mv, char* file_path);
 
 Mv new_mv(void) {
     Stack* s = new_stack();
@@ -140,6 +141,45 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
 
     free(p);
     fclose(f);
+}
+
+ErrType mv_include_file(Mv* mv, char* file_path) {
+    int old_program_size = mv->program.size;
+    int new_program_size = old_program_size + count_lines(file_path); 
+    mv->program.size = new_program_size;
+
+    FILE* f = fopen(file_path, "r");
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    size_t ip = old_program_size;
+    
+    int linenumber = mv->program.inst[old_program_size-1].line_number; // Finding the line number of the last instruction
+    
+    if (f == NULL) {
+        return MV_FileOpenFail;
+    }
+    
+    while ((read = getline(&line, &len, f)) > 0) {
+        Inst i = parse_line(line);  
+        i.line_number = linenumber++;
+
+        if (i.type == LABEL || i.type == FUNC) {
+            size_t index = hash(i.literal, PROGRAM_MAX_SIZE);
+            Label l = (Label) {.jump_point = ip, .name = i.literal};
+
+            mv->label_table.labels[index] = l;
+            mv->label_table.size++;
+        }
+
+        if (i.type != EMPTY) {
+            mv->program.inst[ip++] = i;
+        }
+
+    }
+
+    fclose(f);
+    return None;
 }
 
 Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
@@ -413,6 +453,10 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
                 *ip += 1;
             }
         }
+        break;
+    case INCLUDE: {
+        e.type = mv_include_file(mv, i->literal); 
+    }
         break;
     case LABEL:
         break;
