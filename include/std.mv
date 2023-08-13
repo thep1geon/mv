@@ -1,4 +1,29 @@
-func hello:
-push_lit "Hello World!"
-print
+;; Prints a string from memory
+;; Param: pointer to the first char in reg 0
+func print_str:
+size
+pop 1 ;; throw the initial stack size into reg 1
+mov 0
+
+loop:
+mem_read .
+print 0
+jmp_eq clear 0
+swap
+inc 0
+jmp loop
+
+clear:
+mov 1
+size
+sub
+
+sec_loop:
+pop 1
+pop
+mov 1
+dec 0
+jmp_gt sec_loop 1
+pop
+
 ret

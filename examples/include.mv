@@ -1,3 +1,10 @@
 include "std.mv"
 
-call hello
+mem_write 0 A
+mem_write 1 B
+mem_write 2 C
+mem_write 3 D
+mem_write 4 10
+
+mov 0 0
+call print_str

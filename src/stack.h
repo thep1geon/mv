@@ -24,7 +24,7 @@ typedef struct {
 
 Node* node_alloc(int data);
 void print_node(Node n);
-void print_node_ascii(Node n, bool new_line);
+void print_node_ascii(Node n);
 
 Node* node_alloc(int data) {
     Node *node = (Node *)(malloc(sizeof(Node)));
@@ -39,12 +39,8 @@ Node* node_alloc(int data) {
 }
 
 inline void print_node(Node n) { printf("%d\n", n.data); }
-inline void print_node_ascii(Node n, bool new_line) { 
-    if (new_line) {
-        printf("%c\n", n.data); 
-    } else {
-        printf("%c", n.data); 
-    }
+inline void print_node_ascii(Node n) { 
+    printf("%c", n.data); 
 }
 
 //Stack stuff
@@ -98,7 +94,7 @@ void print_ascii(Stack* stack) {
     }
 
     for (int i = 0; i < (int)stack->size; i++) {
-        print_node_ascii(*stack->data[i], false);
+        print_node_ascii(*stack->data[i]);
     }
     printf("\n");
 }

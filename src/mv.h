@@ -316,7 +316,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
 
         if (i->has_operand) {
             push(mv->stack, i->operand);
-        } else if (i->literal) {
+        } else if (i->has_literal) {
             push(mv->stack, peek(mv->stack)->data); 
         } else {
             e.type = INST_MissingParameters;
@@ -391,7 +391,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
                 print_ascii(mv->stack);
             } else if (i->has_operand) {
                 if (i->operand >= 0 && i->operand < (long)mv->stack->size) {
-                    print_node_ascii(*mv->stack->data[mv->stack->size - 1 - i->operand], true);
+                    print_node_ascii(*mv->stack->data[mv->stack->size - 1 - i->operand]);
                 } else {
                     e.type = STACK_IndexOutofBounds;
                     break;
@@ -426,7 +426,8 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
             e.type = STACK_StackOverflow;
         } else if (!i->has_operand && !i->literal) {
             e.type = INST_MissingParameters;
-        } else if ((i->has_operand && i->operand < 0) || (i->literal != NULL && peek(mv->stack)->data < 0)) {
+        } else if ((i->has_operand && i->operand < 0) || 
+                    (i->literal != NULL && mv->stack->size >= 1 && peek(mv->stack)->data < 0)) {
             e.type = STACK_IndexOutofBounds;
         }
 
@@ -436,14 +437,15 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
 
         if (i->has_operand) {
             push(mv->stack, mv->heap[i->operand]);
-        } else if (!i->has_operand && strcmp(i->literal, ".") == 0) {
+        } else if (!i->has_operand && strcmp(i->literal, ".") == 0 && mv->stack->size >= 1) {
             push(mv->stack, mv->heap[peek(mv->stack)->data]);
         }
         break;
     case MEM_WRITE:
-        if (!i->has_operand && !i->literal && !i->has_operator) {
+        if (!i->has_operand && !i->has_literal && !i->has_operator) {
             e.type = INST_MissingParameters;
-        } else if ((i->has_operand && i->operand < 0) || (i->literal != NULL && peek(mv->stack)->data < 0)) {
+        } else if ((i->has_operand && i->operand < 0) || 
+                    (i->has_literal && mv->stack->size >= 1 && peek(mv->stack)->data < 0)) {
             e.type = STACK_IndexOutofBounds;
         }
 
@@ -451,13 +453,13 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
             break;        
         }
 
-        if (i->has_operand && i->has_operator && !i->literal) {
+        if (i->has_operand && i->has_operator) {
             mv->heap[i->operand] = i->operator;
-        } else if (!i->has_operand && i->has_operator && i->literal) {
+        } else if (!i->has_operand && i->has_operator && i->has_literal) {
             mv->heap[peek(mv->stack)->data] = i->operator;
-        } else if (i->has_operand && !i->has_operator && i->literal) {
+        } else if (i->has_operand && !i->has_operator && i->has_literal) {
             mv->heap[i->operand] = peek(mv->stack)->data;
-        } else if (!i->has_operand && !i->has_operator && i->literal) {
+        } else if (!i->has_operand && !i->has_operator && i->has_literal) {
             mv->heap[peek(mv->stack)->data] = peek(mv->stack)->data;
         }
         break;
@@ -485,6 +487,29 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         break;
     case INCLUDE: {
         e.type = mv_include_file(mv, i->literal); 
+    }
+        break;
+    case SIZE:
+        if (mv->stack->size + 1 >= STACK_CAP) {
+            e.type = STACK_StackOverflow;
+            break;
+        }
+        
+        push(mv->stack, mv->stack->size);
+        break;
+    case SWAP: {
+        if (mv->stack->size >= 2) {
+            mv->registers[8] = pop(mv->stack).data;
+            mv->registers[7] = pop(mv->stack).data;
+            
+            push(mv->stack, mv->registers[8]);
+            push(mv->stack, mv->registers[7]);
+
+            mv->registers[8] = 0;
+            mv->registers[7] = 0;
+        } else {
+            e.type = STACK_StackUnderflow;
+        }
     }
         break;
     case LABEL:

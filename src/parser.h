@@ -6,6 +6,7 @@
 #include "inst.h"
 #include "stack.h"
 #include "label.h"
+
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -37,9 +38,15 @@ bool isnum(const char* str) {
 
 char* substr(const char* src, int start, int end) {
     int input_len = strlen(src);
-    char* dest = malloc(end - start + 1);
+    int subtr_len = end - start;
 
     if (start > input_len) {
+        return NULL;
+    }
+
+    char* dest = malloc(subtr_len + 1);
+
+    if (dest == NULL) {
         return NULL;
     }
 
@@ -71,6 +78,8 @@ InstType str_to_type(const char* str) {
     else if (strcmp(str, "stop") == 0) { return STOP;}
     else if (strcmp(str, "dump") == 0) { return DUMP;}
     else if (strcmp(str, "print") == 0) { return PRINT;}
+    else if (strcmp(str, "size") == 0) { return SIZE;}
+    else if (strcmp(str, "swap") == 0) { return SWAP;}
 
     else if (strcmp(str, "mov") == 0) {return MOV;}
 
@@ -103,6 +112,7 @@ Inst parse_line(char* line) {
     i.type = EMPTY;
     i.has_operand = false;
     i.has_operator = false;
+    i.has_literal = false;
     i.literal = malloc(1000);
     i.line_number = 0;
 
@@ -142,18 +152,22 @@ Inst parse_line(char* line) {
                     
             if (i.type == PUSH_LIT) {
                 i.literal = substr(line, 10, strlen(line)-2);
+                i.has_literal = true;
             }
 
             if (i.type == INCLUDE) {
                 i.literal = substr(operand, 1, strlen(operand)-1);
+                i.has_literal = true;
             }
 
             if (i.type == FUNC) {
                 i.literal = substr(operand, 0, strlen(operand)-1);
+                i.has_literal = true;
             }
 
             if ((i.type >= JMP && i.type <= JMP_NEQ) || (i.type == CALL)) {
                 i.literal = substr(operand, 0, strlen(operand));
+                i.has_literal = true;
                 i.has_operand = false;
             } else {
                 if (!isnum(operand) && operand[0] != '-') {
@@ -166,6 +180,7 @@ Inst parse_line(char* line) {
 
             if (operand[0] == '.') {
                 i.literal = ".";
+                i.has_literal = true;
                 i.has_operand = false;
             }
 
@@ -187,6 +202,7 @@ Inst parse_line(char* line) {
 
             if (operator[0] == '.') {
                 i.literal = ".";
+                i.has_literal = true;
                 i.has_operator = false;
             }
         } else {
@@ -198,6 +214,7 @@ Inst parse_line(char* line) {
 
     if (i.type == LABEL) {
         i.literal = substr(line, 0, strlen(line)-2);
+        i.has_literal = true;
     }
 
     free(new_line);

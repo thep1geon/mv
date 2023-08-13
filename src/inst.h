@@ -45,6 +45,8 @@ typedef enum {
     STOP,
     DUMP,
     PRINT,
+    SIZE,
+    SWAP,
 
     LABEL,
     FUNC,
@@ -78,6 +80,8 @@ char* operation_to_str(InstType i) {
         case CALL:      return "CALL";
         case STOP:      return "STOP";
         case DUMP:      return "DUMP";
+        case SIZE:      return "SIZE";
+        case SWAP:      return "SWAP";
         case EMPTY:     return "EMPTY";
         case LABEL:     return "LABEL";
         case FUNC:      return "FUNC";
@@ -96,23 +100,34 @@ typedef struct {
     long operator;
     bool has_operand;
     bool has_operator;
+    bool has_literal;
     char* literal;
 } Inst;
 
 void print_inst(Inst i) {
-    printf("Inst type: %s, operand: %zu, operator: %zu, literal: %s, Line Number: %d\n", 
+    printf("Inst type: %s, operand: %zu, has_operand: %d, operator: %zu, has_operator: %d, literal: %s, has_literal: %d, Line Number: %d\n", 
            operation_to_str(i.type), 
            i.operand, 
+           i.has_operand,
            i.operator, 
+           i.has_operator,
            i.literal,
+           i.has_literal,
            i.line_number);
 }
 
 // What happens when that instruction is found goes here
 ErrType move(Stack* s, long* registers, size_t register_size, Inst i) {
-    if (i.literal && i.has_operand) {
+    if (i.has_operand && i.has_operator) {
+        registers[i.operand] = i.operator;
+        return None;
+    }
+
+    if (i.has_literal && i.has_operand && s->size >= 1) {
         registers[i.operand] = peek(s)->data;
         return None;
+    } else if (i.has_literal && s->size <= 0) {
+        return STACK_EmptyStack;
     }
 
     if (!i.has_operator) {
@@ -129,17 +144,12 @@ ErrType move(Stack* s, long* registers, size_t register_size, Inst i) {
         }
     } 
 
-    else if (i.has_operand && i.has_operator) {
-        registers[i.operand] = i.operator;
-        return None;
-    }
-
     return INST_MissingParameters;
 }
 
 ErrType jump(Inst* i, LabelTable lt, size_t* ip) {
     size_t jp;
-    if (i->literal && !i->has_operand) {
+    if (i->has_literal && !i->has_operand) {
         Label label = lt.labels[hash(i->literal, PROGRAM_MAX_SIZE)];
         
         if (label.name == NULL) {
@@ -148,7 +158,7 @@ ErrType jump(Inst* i, LabelTable lt, size_t* ip) {
         }
 
         jp = label.jump_point;
-    } else if (i->has_operand && i->literal == NULL) {
+    } else if (i->has_operand && !i->has_literal) {
         jp = i->operand - 1;
     }
 
