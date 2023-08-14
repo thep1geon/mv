@@ -1,10 +1,10 @@
 [X] - Better error messages
-[X] - comments
+[X] - Comments
 [X] - labels
 [X] - Dot Operator
 [X] - Memory
 [X] - Better Strings
-[X] - Make some built in functions; print_str
-[X] - Make some utility instructions like: stack_size
+[X] - Built-in functions (e.g., "print_str")
+[X] - Utility instructions (e.g., "stack_size", "swap")
 [X] - Functions
 [X] - Including from other files

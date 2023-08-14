@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# gcc main.c -g -Wall -Wextra -fsanitize=address -o mv
-gcc main.c -g -Wall -Wextra -o mv
-./mv $1 $2

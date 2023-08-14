@@ -1,5 +1,7 @@
 #define STACK_CAP 10240
 
+#define INLCUDE_PATH "/home/YOUR_USERNAME/mv/include/"
+
 #include "src/mv.h"
 #include <string.h>
 

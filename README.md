@@ -1,230 +1,82 @@
-# Mirtual Vachine (mv)
-A ***very*** simple virtual machine written in C. Inspired by Tsoding.
+# Introduction
+A simple virtual machine and programming language written in C. Inspired by Tsoding.
 
 [Writing VM for my Lisp in C — Day 1](https://www.youtube.com/watch?v=0irYsCYuZws&list=PLpM-Dvs8t0VY73ytTCQqgvgCWttV3m8LM) 
 
 [Tsoding](https://www.youtube.com/@TsodingDaily)
 
-# Quick Start
-```console
-$ ./mv <example program> [-debug]
+## Features
+ - [X] Comments
+ - [X] labels
+ - [X] Dot Operator
+ - [X] Memory
+ - [X] Strings
+ - [X] Built-in functions (e.g., "print_str")
+ - [X] Utility instructions (e.g., "stack_size", "swap")
+ - [X] Functions
+ - [X] Including from other files
+
+## Project Goals
+
+The primary goal of this project is to create a functional virtual machine and programming language while learning and experimenting with language design, virtual machine architecture, and low-level programming concepts.
+
+## Getting Started
+
+Dependencies
+
+- Make
+- gcc
+
+For Debian like distros: ```sudo apt-get install make gcc```
+
+1. Clone the repo: ```git clone https://www.github.com/TheP1geon/mv```
+2. Change the INLCUDE_PATH in main.c to the full path of the include folder of the repo
+3. Compile with the makefile ```make```
+4. [Write](#writing-your-own-programs) your own program or use one of the examples
+5. Run: ```./mv <program> [-debug]```
+
+## Writing Your Own Programs
+
+1. Make a new file ending in ".mv"
+2. Write the program (see the [Docs](https://github.com/TheP1geon/mv/blob/main/docs.md))
+3. Save the file
+4. Run the program with the compiled vm
+
+## Examples
+
+```mv
+include "std.mv"
+
+str "Hello World!"
+dupe 0 ;; Duplicate the pointer
+pop 0 ;; Pop it into register 0
+add ;; add the pointer to the length of the string
+mem_write . 10 ;; Write at that address, 10. A newline character 
+inc 0 ;; Increment the pointer
+mem_write . 0 ;; Write a 0
+pop ;; pop the pointer
+
+call print_str ;; Expects the pointer in register 0
 ```
-# Instructions
 
-    add, sub, div, mod, mult 
-        Pops the top two numbers off the stack and pushes the result
+Prints "Hello World!" with a newline to the standard output
 
-    inc, dec
-        increments, or decrements, the stack at that index
-        
-        if no index is provided the top of the stack is updated
-    
-    dupe
-        pushes the value at the index provided
+```
+Hello World!
+```
 
-    push
-        pretty self-explanatory
+## Contributing
 
-    push_lit
-        pushes the literal (ascii) everything after the instruction
+Feel free to contribute to the project. Be sure to:
 
-    mov
-        if only one paramter is provided, the value at that register (zero based) is pushed to that stack
-        
-        if two parameters are provided, the second value is put into the register of the first parameter
+- Clearly describe the changes made
+- Test the changes to ensure they don't introduce new issues
+- Follow the project's coding style and guidelines
 
-    pop
-        if a paramter is provided, the top of the stack is popped into that register
-        
-        if no paramter is passed, the top is just popped
+## Quick Start
 
-    jmp (and all the variants)
-        all jump instructions take the jump-point as the first parameter
-
-        the other jump options take what you're comparing the top of the stack with and only jumping if that is true
-
-    dump
-        prints the stack as numbers
-    
-    print
-        prints the ascii representation of the stack
-
-# Examples:
-labels.mv
-
-Output: 
-
-Equal
-
-----------------------------------------------------
-
-fact.mv
-
-Output: 
-
-120
-
-----------------------------------------------------
-
-squares.mv
-
-Output: 
-
-1
-
-4
-
-9
-
-16
-
-25
-
-36
-
-49
-
-64
-
-81
-
-100
-
-----------------------------------------------------
-
-
-
-dot-operator.mv
-
-Output: 
-
-59
-
-59
-
-59
-
-----------------------------------------------------
-
-
-
-reg.mv
-
-Output: 
-
-0
-
-----------------------------------------------------
-
-str.mv
-
-Output: 
-
-Jello World!
-
-Another Jello World!
-
-----------------------------------------------------
-
-
-fib.mv
-
-Output: 
-
-0
-
-1
-
-1
-
-2
-
-3
-
-5
-
-8
-
-13
-
-21
-
-34
-
-55
-
-89
-
-144
-
-233
-
-377
-
-610
-
-987
-
-----------------------------------------------------
-
-abc.mv
-
-Output: 
-
-Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
-
-----------------------------------------------------
-
-functions.mv
-
-Output: 
-
-This is a Function!
-
-----------------------------------------------------
-
-hello-world.mv
-
-Output: 
-
-Hello, World!
-
-----------------------------------------------------
-
-include.mv
-
-
-
-Output: 
-
-ABCD
-
-----------------------------------------------------
-
-count-to-10.mv
-
-Output: 
-
-0
-
-1
-
-2
-
-3
-
-4
-
-5
-
-6
-
-7
-
-8
-
-9
-
-10
-
-----------------------------------------------------
+Run:
+```bash
+./test.py
+```
+To see all the examples and their output

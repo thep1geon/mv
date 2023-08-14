@@ -364,6 +364,10 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
     case PUSH:
         if (mv->stack->size + 1 == STACK_CAP) {
             e.type = STACK_StackOverflow;
+            break;
+        } else if (i->has_literal && mv->stack->size < 1) {
+            e.type = STACK_EmptyStack;
+            break;
         }
 
         if (i->has_operand) {
@@ -597,4 +601,4 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
 }
 
 #endif //__MV_H
-// Almost 600 lines of code 🇱 👊
+// 600 lines of code 🇱 👊
