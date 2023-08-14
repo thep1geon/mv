@@ -18,10 +18,12 @@ typedef int bool;
 
 // Node stuff
 
+// Don't even know why I did this but I really don't want to change it
 typedef struct {
     int data;
 } Node;
 
+// Node related functions
 Node* node_alloc(int data);
 void print_node(Node n);
 void print_node_ascii(Node n);
@@ -50,6 +52,7 @@ typedef struct {
     size_t size;
 } Stack;
 
+// Stack functions
 Stack* new_stack();
 void print(Stack *stack);
 void print_ascii(Stack *stack);
@@ -136,10 +139,12 @@ Node pop(Stack* s) {
     }
 
     Node popped_node = *s->data[--s->size];
+    // Free the memory and return the value of the Node, not the reference
     free(s->data[s->size]);
     return popped_node;
 }
 
+// Peek can return a Node pointer
 Node* peek(Stack* s) {
     if (s->size == 0) {
         non_failing_err(new_error(STACK_EmptyStackPeek, 
@@ -171,7 +176,7 @@ Node get(Stack* s, size_t index) {
     }
 
     if (s->size == 0) {
-        non_failing_err(new_error(STACK_EmptyStack, 
+        fatal_err(new_error(STACK_EmptyStack, 
                                   __LINE__, __FILE__));
     }
 
@@ -226,6 +231,7 @@ void copy(Stack* dest, Stack* src) {
 }
 
 void release(Stack** s_ptr) {
+    // Freeing all the memory the Stack used
     Stack* s = *s_ptr;
     clear(s);
     free(s);

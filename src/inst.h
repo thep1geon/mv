@@ -95,6 +95,7 @@ char* operation_to_str(InstType i) {
     }
 }
 
+// Each instruction has these 
 typedef struct {
     InstType type;
     int line_number;
@@ -118,8 +119,9 @@ void print_inst(Inst i) {
            i.line_number);
 }
 
-// What happens when that instruction is found goes here
+// Moving data in and out of the registers
 ErrType move(Stack* s, long* registers, size_t register_size, Inst i) {
+    // Registers is just an array of longs
     if (i.has_operand && i.has_operator) {
         registers[i.operand] = i.operator;
         return None;
@@ -149,12 +151,15 @@ ErrType move(Stack* s, long* registers, size_t register_size, Inst i) {
     return INST_MissingParameters;
 }
 
+// Jumping around in the program
 ErrType jump(Inst* i, LabelTable lt, size_t* ip) {
     size_t jp;
     if (i->has_literal && !i->has_operand) {
         Label label = lt.labels[hash(i->literal, PROGRAM_MAX_SIZE)];
+        // Get the label from the label table
         
         if (label.name == NULL) {
+            // If the label is not found
             printf("Label: %s\n", i->literal);
             return INST_LabelNotFound;
         }
@@ -165,6 +170,6 @@ ErrType jump(Inst* i, LabelTable lt, size_t* ip) {
     }
 
     *ip = jp;
-    return None;
+    return None; // return a none error
 }
 #endif /*__INST_H*/

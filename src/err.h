@@ -6,10 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Errors as types
 typedef struct {
     ErrType type;
-    size_t line_number;
-    const char* file;
+    size_t line_number; // This is for where the err originated from
+    const char* file; // File name
 } Err;
 
 Err new_error(ErrType type, size_t line_number, const char* file_name) {
@@ -21,6 +22,7 @@ void fatal_err(Err e) {
             e.file, e.line_number, err_type_to_str(e.type));
 
     fprintf(stderr, "Exit Code: %d\n", e.type);
+    // Each error type has it's own error code
     exit(e.type);
 }
 

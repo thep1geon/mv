@@ -36,22 +36,24 @@ bool isnum(const char* str) {
     return true;  // All characters are digits
 }
 
+// (I don't think) This code is not memory safe
 char* substr(const char* src, int start, int end) {
     int input_len = strlen(src);
-    int subtr_len = end - start;
+    int subtr_len = end - start + 1;
 
     if (start > input_len) {
         return NULL;
     }
 
-    char* dest = malloc(subtr_len + 1);
+    // I don't know how I would free this :(
+    char* dest = malloc(subtr_len);
 
     if (dest == NULL) {
         return NULL;
     }
 
-    strncpy(dest, src + start, end);
-    dest[end - start] = '\0';
+    strncpy(dest, src + start, subtr_len - 1);
+    dest[subtr_len - 1] = '\0';
     return dest;
 }
 
@@ -114,18 +116,19 @@ Inst parse_line(char* line) {
     i.has_operand = false;
     i.has_operator = false;
     i.has_literal = false;
-    i.literal = malloc(1000);
+    i.literal = NULL;
     i.line_number = 0;
 
     if (line[0] == ';') {
         return i;
     }
 
+    // We need a copy of the line
     char* new_line = (char*)malloc(strlen(line)+1);
     if (new_line != NULL) {
         size_t line_length = strlen(line);
-        for (size_t I = 0; I < line_length; ++I) {
-            new_line[I] = line[I];
+        for (size_t j = 0; j < line_length; ++j) {
+            new_line[j] = line[j];
         }
         new_line[line_length] = '\0';
     } else {
@@ -151,6 +154,7 @@ Inst parse_line(char* line) {
                 return i;
             }
                     
+            // The literal for each InstType has to be handled differently
             if (i.type == PUSH_LIT) {
                 i.literal = substr(line, 10, strlen(line)-2);
                 i.has_literal = true;
@@ -176,6 +180,7 @@ Inst parse_line(char* line) {
                 i.has_literal = true;
                 i.has_operand = false;
             } else {
+                // We can set the operand if we don't need to handle the literal
                 if (!isnum(operand) && operand[0] != '-') {
                     i.operand = operand[0]; 
                 } else {
@@ -185,6 +190,7 @@ Inst parse_line(char* line) {
             }
 
             if (operand[0] == '.') {
+                // Dot operator 
                 i.literal = ".";
                 i.has_literal = true;
                 i.has_operand = false;

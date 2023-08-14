@@ -1,6 +1,8 @@
 #ifndef __ETYPES_H
 #define __ETYPES_H
 
+
+// Enum of error types
 typedef enum {
     None = 0, 
 

@@ -12,13 +12,13 @@
 #define PROGRAM_MAX_SIZE 1024
 #endif
 
+// A program is just an array of Insts and the name of the file for error handling
 typedef struct {
     Inst inst[PROGRAM_MAX_SIZE];
     size_t size;
     const char* file;
 } Program;
 
-// Like a constructor
 Program new_program(Inst* i, size_t program_size, const char* file_name) {
     Program p = {};    
     memcpy(p.inst, i, sizeof(i[0]) * program_size);

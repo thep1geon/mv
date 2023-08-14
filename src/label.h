@@ -8,12 +8,11 @@
 
 typedef struct {
     int jump_point;
-    size_t index;
     char* name;
 } Label;
 
 typedef struct {
-    Label labels[PROGRAM_MAX_SIZE];
+    Label labels[PROGRAM_MAX_SIZE]; // We can't have more labels than the max program size
     size_t size;
 } LabelTable;
 
@@ -21,12 +20,13 @@ void print_label(Label l) {
     printf("Label name: %s, jump_point: %d\n", l.name, l.jump_point);
 }
 
+// Hash function I found
 size_t hash(const char* label_name, size_t array_size) {
     unsigned long hash = 5381;
     int c;
 
     while ((c = *label_name++)) {
-        hash = ((hash << 5) + hash) + c; // hash * 33 + c
+        hash = ((hash << 5) + hash) + c;
     }
 
     return hash % array_size;

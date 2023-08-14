@@ -1,12 +1,16 @@
 #ifndef __MV_H
 #define __MV_H
 
+#ifndef INCLUDE_PATH
+#define INCLUDE_PATH "/home/magic/mv/include/"
+#endif //INCLUDE_PATH
+
 #ifndef HEAP_SIZE
 #define HEAP_SIZE 10240 // 10 kilobytes of memory should be enough
 #endif //HEAP_SIZE
 
 #ifndef NUM_REGISTERS
-#define NUM_REGISTERS 10
+#define NUM_REGISTERS 10 // I really don't know how many registers are needed
 #endif //NUM_REGISTERS
 
 #include <stddef.h>
@@ -23,7 +27,7 @@
 #include "parser.h"
 #include "label.h"
 
-
+// The Virtual Machine
 typedef struct {
     Program program;
     Stack* stack;
@@ -34,13 +38,14 @@ typedef struct {
     bool halt;
 } Mv; // Mirtual Vachine
 
+// Functions related to the Virtual Machine
 Mv new_mv(void);
 void mv_run(Mv mv, bool debug);
 void mv_dump(Mv mv);
 void mv_close(Mv mv);
 void mv_program_from_file(Mv* mv, const char* file_path);
 void mv_set_program(Mv* mv, Program p);
-Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug);
+Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug);
 ErrType mv_include_file(Mv* mv, char* file_path);
 size_t mv_find_memory(Mv mv, size_t length);
 
@@ -50,16 +55,19 @@ Mv new_mv(void) {
     return mv;
 }
 
+// Running the program in the vm's memory
 void mv_run(Mv mv, bool debug) {
     if (mv.program.size == 0) {
         fatal_err(new_error(MV_ProgramNotFound, 0, 0));
     }
 
-    for (int i = 0; (size_t)i < mv.program.size && !mv.halt; ++i) {
+    for (size_t i = 0; i < mv.program.size && !mv.halt; ++i) {
         Err e = mv_execute_inst(&mv, &mv.program.inst[i], &i, debug);
+        // Passing the reference to the loop counter so we can change it
 
         if (e.type != None) {
             mv.halt = true;
+            // Handle any errors produced by executing the last instruction
             fatal_err(e);
         }
     }
@@ -67,6 +75,18 @@ void mv_run(Mv mv, bool debug) {
 
 void mv_close(Mv mv) {
     release(&mv.stack);
+
+    for (int i = 0; i < mv.heap_size; ++i) {
+        mv.heap[i] = 0;
+        // NULL out the heap
+    }
+
+    for (size_t i = 0; i < mv.program.size; ++i) {
+        Inst* inst = &mv.program.inst[i];
+        if (inst->literal) {
+            inst->literal = NULL;
+        }
+    }
 }
 
 inline void mv_dump(Mv mv) { print(mv.stack); }
@@ -76,11 +96,11 @@ void mv_set_program(Mv* mv, Program p) {
     mv->program = p;
 }
 
-static int count_lines(const char* filename) {
+static int count_empty_lines(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         fprintf(stderr, "Error opening file: %s\n", filename);
-        return -1; // Return -1 to indicate an error
+        return -1;
     }
 
     int lines = 0;
@@ -114,7 +134,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
 
     size_t ip = 0;
     int linenumber = 1;
-    int program_size = count_lines(file_path);
+    int program_size = count_empty_lines(file_path);
     Inst* p = (Inst*) malloc(sizeof(Inst) * program_size);
 
     if (f == NULL) {
@@ -126,6 +146,7 @@ void mv_program_from_file(Mv* mv, const char* file_path) {
         i.line_number = linenumber++;
 
         if (i.type == LABEL || i.type == FUNC) {
+            // Functions are just fancy labels
             size_t index = hash(i.literal, PROGRAM_MAX_SIZE);
             Label l = (Label) {.jump_point = ip, .name = i.literal};
 
@@ -151,7 +172,8 @@ bool file_exists(const char* path) {
 }
 
 ErrType mv_include_file(Mv* mv, char* file_path) {
-    char* include_path = "/home/magic/mv/include/";
+    char* include_path = INCLUDE_PATH;
+    // The first path we look in
     char file_include_path[100];
     snprintf(file_include_path, sizeof(file_include_path), "%s%s", include_path, file_path);
 
@@ -159,15 +181,18 @@ ErrType mv_include_file(Mv* mv, char* file_path) {
     int new_program_size = old_program_size;
 
     if (file_exists(file_include_path)) {
-        new_program_size += count_lines(file_include_path); 
+        // Check the include path first
+        new_program_size += count_empty_lines(file_include_path); 
     } else if (file_exists(file_path)) {
-        new_program_size += count_lines(file_path);
+        // then the current directory
+        new_program_size += count_empty_lines(file_path);
     } else {
         fprintf(stderr, "Error opening file: %s\n", file_path);
-        return -1; // Return -1 to indicate an error
+        return -1; 
     }
 
     mv->program.size = new_program_size;
+    // Update the program size
 
     FILE* f;
     char* line = NULL;
@@ -213,6 +238,7 @@ ErrType mv_include_file(Mv* mv, char* file_path) {
     return None;
 }
 
+// Returns the address of the first availabe space of memory of n length
 size_t mv_find_memory(Mv mv, size_t length) {
     for (size_t i = 0; i < mv.heap_size - length; ++i) {
         size_t j;
@@ -232,9 +258,11 @@ size_t mv_find_memory(Mv mv, size_t length) {
     }
 
     return -1;
+    // -1 if no space was found
 }
 
-Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
+Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
+    // Set up an error at the beginning
     Err e = {.type = None, .line_number = i->line_number, .file = mv->program.file};
  
     if (debug) {
@@ -313,6 +341,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
                 break;
             }
         } else {
+            // Decrement the top of the stack if no index is provided
             (*mv->stack->data[mv->stack->size - 1]).data--;
         }
         break;
@@ -347,13 +376,13 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         break;
     case PUSH_LIT: {
         if (i->has_operand) {
-            for (size_t I = 0; I < (size_t)strlen(i->literal); ++I) {
+            for (size_t j = 0; j < (size_t)strlen(i->literal); ++j) {
                 if (mv->stack->size+1 >= STACK_CAP) {
                     e.type = STACK_StackOverflow;
                     break;
                 }
 
-                push(mv->stack, i->literal[I]); 
+                push(mv->stack, i->literal[j]); 
             }
         } else {
             e.type = INST_MissingParameters;
@@ -361,42 +390,43 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         }
         break;
     case JMP:
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         break;
     case JMP_GT:
         if (peek(mv->stack)->data > i->operator) {
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_GTEQ:
         if (peek(mv->stack)->data >= i->operator) {
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_LT:
         if (peek(mv->stack)->data < i->operator) {
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_LTEQ:
         if (peek(mv->stack)->data <= i->operator) {
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_EQ:
         if (peek(mv->stack)->data == i->operator) {
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_NEQ:
         if (peek(mv->stack)->data != i->operator) {
-            jump(i, mv->label_table, (size_t*)ip);
+            e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case STOP:
         e.type = MV_Stop;
-        return e;
+        break;
     case DUMP: {
+            // Print the stack as numbers
             if (!i->has_operand) {
                 print(mv->stack);
             } else if (i->has_operand) {
@@ -410,6 +440,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         }
         break;
     case PRINT: {
+            // Print the stack as characters
             if (!i->has_operand) {
                 print_ascii(mv->stack);
             } else if (i->has_operand) {
@@ -498,7 +529,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         break;
     case FUNC:
         if (mv->registers[9] == 0) {
-            // We reached a function with out calling it
+            // We reached a function without calling it
             // So we need to skip over it 
             Inst* inst = &mv->program.inst[*ip];
             
@@ -521,6 +552,8 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         push(mv->stack, mv->stack->size);
         break;
     case SWAP: {
+        // Swap the two elements on the Stack
+        // sets the registers back to zero after 
         if (mv->stack->size >= 2) {
             mv->registers[8] = pop(mv->stack).data;
             mv->registers[7] = pop(mv->stack).data;
@@ -537,6 +570,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
         break;
     case STR: {
         size_t len = strlen(i->literal);
+        // Find some memory for the string
         int begin = mv_find_memory(*mv, len+1); 
         if (begin != -1) {
             size_t j;
@@ -544,8 +578,8 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
                 mv->heap[j] = *i->literal++;
             }  
             mv->heap[++j] = '\0';
-            push(mv->stack, len);
-            push(mv->stack, begin);
+            push(mv->stack, len); // push the length
+            push(mv->stack, begin); // and then the pointer to the beginning of the string
         } else {
             e.type = MV_MemFail;
         }
@@ -563,3 +597,4 @@ Err mv_execute_inst(Mv* mv, Inst* i, int* ip, bool debug) {
 }
 
 #endif //__MV_H
+// Almost 600 lines of code 🇱 👊
