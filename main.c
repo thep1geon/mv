@@ -1,6 +1,6 @@
 #define STACK_CAP 10240
 
-#define INCLUDE_PATH "/home/YOUR_USERNAME/mv/include/"
+#define INCLUDE_PATH "./include/"
 
 #include "src/mv.h"
 #include <string.h>

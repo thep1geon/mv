@@ -36,7 +36,7 @@ bool isnum(const char* str) {
     return true;  // All characters are digits
 }
 
-// (I don't think) This code is not memory safe
+// (I don't think) This code is memory safe
 char* substr(const char* src, int start, int end) {
     int input_len = strlen(src);
     int subtr_len = end - start + 1;
@@ -45,7 +45,6 @@ char* substr(const char* src, int start, int end) {
         return NULL;
     }
 
-    // I don't know how I would free this :(
     char* dest = malloc(subtr_len);
 
     if (dest == NULL) {
@@ -124,9 +123,9 @@ Inst parse_line(char* line) {
     }
 
     // We need a copy of the line
-    char* new_line = (char*)malloc(strlen(line)+1);
+    size_t line_length = strlen(line);
+    char* new_line = (char*)malloc(line_length+1);
     if (new_line != NULL) {
-        size_t line_length = strlen(line);
         for (size_t j = 0; j < line_length; ++j) {
             new_line[j] = line[j];
         }
@@ -157,27 +156,56 @@ Inst parse_line(char* line) {
             // The literal for each InstType has to be handled differently
             if (i.type == PUSH_LIT) {
                 i.literal = substr(line, 10, strlen(line)-2);
+
+                if (i.literal == NULL) {
+                    i.type = ILL;
+                    return i;
+                }
+
                 i.has_literal = true;
+                i.was_literal_alloced = true;
             }
 
             if (i.type == INCLUDE) {
                 i.literal = substr(operand, 1, strlen(operand)-1);
+
+                if (i.literal == NULL) {
+                    i.type = ILL;
+                    return i;
+                }
+
                 i.has_literal = true;
+                i.was_literal_alloced = true;
             }
 
             if (i.type == FUNC) {
                 i.literal = substr(operand, 0, strlen(operand)-1);
+
+                if (i.literal == NULL) {
+                    i.type = ILL;
+                    return i;
+                }
+
                 i.has_literal = true;
+                i.was_literal_alloced = true;
             }
 
             if (i.type == STR) {
                 i.literal = substr(line, 5, strlen(line)-2);
                 i.has_literal = true;
+                i.was_literal_alloced = true;
             }
 
             if ((i.type >= JMP && i.type <= JMP_NEQ) || (i.type == CALL)) {
                 i.literal = substr(operand, 0, strlen(operand));
+
+                if (i.literal == NULL) {
+                    i.type = ILL;
+                    return i;
+                }
+
                 i.has_literal = true;
+                i.was_literal_alloced = true;
                 i.has_operand = false;
             } else {
                 // We can set the operand if we don't need to handle the literal
@@ -226,7 +254,14 @@ Inst parse_line(char* line) {
 
     if (i.type == LABEL) {
         i.literal = substr(line, 0, strlen(line)-2);
+
+        if (i.literal == NULL) {
+            i.type = ILL;
+            return i;
+        }
+
         i.has_literal = true;
+        i.was_literal_alloced = true;
     }
 
     free(new_line);

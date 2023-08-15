@@ -45,7 +45,7 @@ For Debian like distros: ```sudo apt-get install make gcc```
 ## Examples
 
 ```mv
-include "std.mv"
+include "std.mv" ;; Inlcude the standard library which only has one function
 
 str "Hello World!"
 dupe 0 ;; Duplicate the pointer

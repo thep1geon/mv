@@ -16,7 +16,7 @@
 typedef struct {
     Inst inst[PROGRAM_MAX_SIZE];
     size_t size;
-    const char* file;
+    char* file;
 } Program;
 
 Program new_program(Inst* i, size_t program_size, const char* file_name) {

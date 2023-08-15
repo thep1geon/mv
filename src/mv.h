@@ -76,6 +76,8 @@ void mv_run(Mv mv, bool debug) {
 void mv_close(Mv mv) {
     release(&mv.stack);
 
+    free(mv.program.file);
+
     for (int i = 0; i < mv.heap_size; ++i) {
         mv.heap[i] = 0;
         // NULL out the heap
@@ -83,7 +85,8 @@ void mv_close(Mv mv) {
 
     for (size_t i = 0; i < mv.program.size; ++i) {
         Inst* inst = &mv.program.inst[i];
-        if (inst->literal) {
+        if (inst->literal && inst->was_literal_alloced) {
+            free(inst->literal);
             inst->literal = NULL;
         }
     }

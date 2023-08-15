@@ -3,7 +3,7 @@
 import os
 
 def main():
-    os.system("./run")
+    os.system("make")
     for _, _, files, in os.walk("examples/"):
         for name in files:
             if name.endswith(".mv"):

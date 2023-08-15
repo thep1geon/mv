@@ -103,8 +103,9 @@ typedef struct {
     long operator;
     bool has_operand;
     bool has_operator;
-    bool has_literal;
     char* literal;
+    bool has_literal;
+    bool was_literal_alloced;
 } Inst;
 
 void print_inst(Inst i) {
