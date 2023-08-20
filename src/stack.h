@@ -147,7 +147,7 @@ Node pop(Stack* s) {
 // Peek can return a Node pointer
 Node* peek(Stack* s) {
     if (s->size == 0) {
-        non_failing_err(new_error(STACK_EmptyStackPeek, 
+        non_fatal_err(new_error(STACK_EmptyStackPeek, 
                                   __LINE__, __FILE__));
         return NULL;
     }

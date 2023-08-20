@@ -8,3 +8,5 @@
 [X] - Utility instructions (e.g., "stack_size", "swap")
 [X] - Functions
 [X] - Including from other files
+[X] - Arrays that support numbers
+[ ] - let bindings // Maybe

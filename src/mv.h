@@ -243,14 +243,14 @@ ErrType mv_include_file(Mv* mv, char* file_path) {
 
 // Returns the address of the first availabe space of memory of n length
 size_t mv_find_memory(Mv mv, size_t length) {
-    for (size_t i = 0; i < mv.heap_size - length; ++i) {
+    for (size_t i = 0; i < mv.heap_size - length; i++) {
         size_t j;
-        for (j = 0; j < length; ++j) {
+        for (j = 0; j < length; j++) {
             if (mv.heap[i + j] != 0) {
                 break; 
             }
 
-            if (mv.heap[i+j] == 0 && mv.heap[i+j-1] != 0) {
+            if (mv.heap[i + j] == 0 && mv.heap[i+j-1] != 0) {
                 break;
             }
         }
@@ -311,7 +311,7 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
                 break;
             }
             
-            push(mv->stack, pop(mv->stack).data/pop(mv->stack).data);
+            push(mv->stack, a.data/b.data);
         }
         break;
     case MOD: {
@@ -592,6 +592,33 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
         }
     }
         break;
+    case ARR: {
+        if (!i->has_operand) {
+            e.type = INST_MissingParameters;
+            break;
+        }
+         
+        int size = i->operand;
+
+        int ptr = mv_find_memory(*mv, size+1);
+        if (ptr == -1) {
+            e.type = MV_MemFail;
+            break;
+        }
+
+        int j;
+        for (j = ptr; j < ptr + size; ++j) {
+            if (i->has_operator) {
+                mv->heap[j] = i->operator;
+            } else {
+                mv->heap[j] = -1;
+            }
+        }
+        mv->heap[++j] = '\0';
+
+        push(mv->stack, ptr);
+    }
+        break;
     case LABEL:
         break;
     case EMPTY:
@@ -604,4 +631,4 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
 }
 
 #endif //__MV_H
-// 600 lines of code 🇱 👊
+// 630 lines of code 🇱 👊

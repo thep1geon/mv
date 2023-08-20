@@ -121,6 +121,12 @@ However, when a function is found, it is skipped.
 - str "string": Finds the next available address in memory and writes the string there.
 str, in this order, pushes the length of the string and then the pointer to start of the string
 
+- arr [size]: allocates [size] on the heap and pushes the pointer to the start
+on to the stack
+
+- arr [size] [default]: allocates [size] on the heap and pushes the pointer to the start
+on to the stack. The array is filled with the [default]
+
 ### Utility Operations
 
 - dump: Prints the stack as numbers
@@ -153,6 +159,7 @@ In order to achieve some level of safety, only these operators can use the dot o
 - mem_read
 - mem_write
 - mov
+- arr
 
 ## Standard Library
 

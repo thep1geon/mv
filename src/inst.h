@@ -39,6 +39,7 @@ typedef enum {
     MEM_READ,
     MEM_WRITE,
     STR,
+    ARR,
     
     RET,
     CALL,

@@ -95,6 +95,7 @@ InstType str_to_type(const char* str) {
     else if (strcmp(str, "mem_read") == 0) {return MEM_READ;}
     else if (strcmp(str, "mem_write") == 0) {return MEM_WRITE;}
     else if (strcmp(str, "str") == 0) {return STR;}
+    else if (strcmp(str, "arr") == 0) {return ARR;}
 
     else if (strcmp(str, "ret") == 0) {return RET;}
     else if (strcmp(str, "call") == 0) {return CALL;}

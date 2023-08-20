@@ -26,7 +26,7 @@ void fatal_err(Err e) {
     exit(e.type);
 }
 
-void non_failing_err(Err e) {
+void non_fatal_err(Err e) {
     fprintf(stderr, "File: %s >> NON FATAL ERROR! (Line %zu) ->  %s\n", 
             e.file, e.line_number, err_type_to_str(e.type));
 }

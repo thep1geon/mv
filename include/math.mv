@@ -1,0 +1,40 @@
+func add:
+add
+ret
+
+func sub:
+swap
+sub
+ret
+
+func mult:
+mult
+ret
+
+func div:
+swap
+div
+ret
+
+func sin:
+top:
+mov 0
+push 180
+sub
+push 4
+mov 0
+mult
+mult
+
+bottom:
+mov 0
+push 180
+sub
+mov 0
+mult
+push 40500
+sub
+
+div
+
+ret

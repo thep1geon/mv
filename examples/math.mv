@@ -1,0 +1,5 @@
+include "math.mv"
+
+mov 0 90
+call sin
+dump
