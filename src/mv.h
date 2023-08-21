@@ -31,6 +31,7 @@
 typedef struct {
     Program program;
     Stack* stack;
+    Stack* call_stack;
     int heap[HEAP_SIZE];
     int heap_size;
     long registers[NUM_REGISTERS];
@@ -51,7 +52,8 @@ size_t mv_find_memory(Mv mv, size_t length);
 
 Mv new_mv(void) {
     Stack* s = new_stack();
-    Mv mv = {.stack = s, .halt = false, .heap_size = HEAP_SIZE};
+    Stack* call_stack = new_stack();
+    Mv mv = {.stack = s, .call_stack = call_stack, .halt = false, .heap_size = HEAP_SIZE};
     return mv;
 }
 
@@ -75,6 +77,7 @@ void mv_run(Mv mv, bool debug) {
 
 void mv_close(Mv mv) {
     release(&mv.stack);
+    release(&mv.call_stack);
 
     free(mv.program.file);
 
@@ -525,17 +528,17 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
         }
         break;
     case CALL:
-        // Put the return address into register 9
-        mv->registers[9] = *ip;
+        // Push the return value onto the call stack
+        push(mv->call_stack, *ip);
         jump(i, mv->label_table, (size_t*)ip); // jump to the function
         break;
     case RET: {
-        *ip = mv->registers[9];
-        mv->registers[9] = 0;
+        assert(!is_empty(mv->call_stack));
+        *ip = pop(mv->call_stack).data;
         }
         break;
     case FUNC:
-        if (mv->registers[9] == 0) {
+        if (is_empty(mv->call_stack)) {
             // We reached a function without calling it
             // So we need to skip over it 
             Inst* inst = &mv->program.inst[*ip];

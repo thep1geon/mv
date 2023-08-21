@@ -23,7 +23,7 @@ void fatal_err(Err e) {
 
     fprintf(stderr, "Exit Code: %d\n", e.type);
     // Each error type has it's own error code
-    exit(e.type);
+    exit((int)e.type);
 }
 
 void non_fatal_err(Err e) {

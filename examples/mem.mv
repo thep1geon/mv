@@ -1,5 +1,3 @@
-include "functions.mv"
-
 arr 10 65
 
 push 10

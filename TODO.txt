@@ -10,3 +10,4 @@
 [X] - Including from other files
 [X] - Arrays that support numbers
 [ ] - let bindings // Maybe
+[X] - Call Stack
