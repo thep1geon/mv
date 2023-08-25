@@ -40,6 +40,12 @@ typedef enum {
     MEM_WRITE,
     STR,
     ARR,
+
+    // Screen Stuff
+    DRAW,
+    CLEAR_SCREEN,
+    VID_MEM_READ,
+    VID_MEM_WRITE,
     
     RET,
     CALL,
@@ -49,6 +55,7 @@ typedef enum {
     PRINT,
     SIZE,
     SWAP,
+    WAIT,
 
     LABEL,
     FUNC,
@@ -120,6 +127,8 @@ void print_inst(Inst i) {
            i.has_literal,
            i.line_number);
 }
+
+// The more complicates instructions that require more lines of code
 
 // Moving data in and out of the registers
 ErrType move(Stack* s, long* registers, size_t register_size, Inst i) {

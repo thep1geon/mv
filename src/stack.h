@@ -40,9 +40,9 @@ Node* node_alloc(int data) {
     return node;
 }
 
-inline void print_node(Node n) { printf("%d\n", n.data); }
+inline void print_node(Node n) { printf("%d\n", (char)n.data); }
 inline void print_node_ascii(Node n) { 
-    printf("%c", n.data); 
+    printf("%c", (char)n.data); 
 }
 
 //Stack stuff

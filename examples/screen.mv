@@ -1,0 +1,9 @@
+push 0
+loop:
+vid_mem_write . X
+wait 250
+draw
+vid_mem_write . 0
+push 30
+add
+jmp_lt loop 1000

@@ -1,15 +1,1 @@
-arr 10 65
-
-push 10
-loop:
-pop 0
-mem_read .
-swap
-inc 0
-mov 0
-dec
-jmp_neq loop 0
-pop
-pop
-
-print
+arr 10

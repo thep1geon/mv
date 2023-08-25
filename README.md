@@ -12,9 +12,10 @@ A simple virtual machine and programming language written in C. Inspired by Tsod
  - [X] Memory
  - [X] Strings
  - [X] Built-in functions (e.g., "print_str")
- - [X] Utility instructions (e.g., "stack_size", "swap")
+ - [X] Utility instructions (e.g., "size", "swap")
  - [X] Functions
  - [X] Including from other files
+ - [X] Call Stack
 
 ## Project Goals
 

@@ -13,6 +13,7 @@ language 'Vassembly'
     - [Labels & Functions](#labels-&-functions)
     - [Memory Operations](#memory-operations)
     - [Utility Operations](#utility-operations)
+    - [Screen Stuff](#screen-stuff)
     - [Other](#other)
 - [Standard Library](#standard-library)
 - [Virtual Machine](#virtual-machine)
@@ -127,6 +128,20 @@ on to the stack
 - arr [size] [default]: allocates [size] on the heap and pushes the pointer to the start
 on to the stack. The array is filled with the [default]
 
+### Screen Stuff
+
+The screen has its own video buffer. The two memory operations change the video buffer.
+
+The video buffer is an array of integers but is printed as ascii characters
+
+- vid_mem_read [address]: Pushes the value at [address] onto the stack
+
+- vid_mem_write [address] [value]: Sets the value at [address] to [value]
+
+- draw: Renders the video buffer to the standard output
+
+- clear: clears the video buffer; sets everything to 0
+
 ### Utility Operations
 
 - dump: Prints the stack as numbers
@@ -159,7 +174,6 @@ In order to achieve some level of safety, only these operators can use the dot o
 - mem_read
 - mem_write
 - mov
-- arr
 
 ## Standard Library
 

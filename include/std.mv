@@ -1,17 +1,31 @@
 ;; Prints a string from memory
-;; Param: pointer to the first char in reg 0
+;; Param: pointer to the first char on top of the stack
+;; WARNING: This function consumes the pointer and pops it off the stack when done
 func print_str:
-mov 0
-
-loop:
+print_loop:
 mem_read .
 print 0
-jmp_eq end 0
+jmp_eq print_end 0
 pop
 inc 0
-jmp loop
+jmp print_loop
 
-end:
+print_end:
 pop
+pop
+ret
+
+func add_newline:
+dupe 0
+count_loop:
+mem_read .
+jmp_eq newline_end 0
+pop
+inc
+jmp count_loop
+
+newline_end:
+pop
+mem_write . 10
 pop
 ret

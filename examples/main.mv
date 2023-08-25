@@ -1,3 +1,4 @@
-func add:
-add
-ret
+include "std.mv"
+
+str "Hello World!"
+call print_str

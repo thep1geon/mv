@@ -26,16 +26,18 @@
 #include "inst.h"
 #include "parser.h"
 #include "label.h"
+#include "screen.h"
 
 // The Virtual Machine
 typedef struct {
     Program program;
     Stack* stack;
-    Stack* call_stack;
+    Stack* call_stack; // Should the program be responsible for the call_stack
     int heap[HEAP_SIZE];
     int heap_size;
     long registers[NUM_REGISTERS];
     LabelTable label_table;
+    Screen screen;
     bool halt;
 } Mv; // Mirtual Vachine
 
@@ -52,8 +54,8 @@ size_t mv_find_memory(Mv mv, size_t length);
 
 Mv new_mv(void) {
     Stack* s = new_stack();
-    Stack* call_stack = new_stack();
-    Mv mv = {.stack = s, .call_stack = call_stack, .halt = false, .heap_size = HEAP_SIZE};
+    Stack* call_stack = new_stack(); // Sweet, a call stack
+    Mv mv = {.stack = s, .call_stack = call_stack, .halt = false, .heap_size = HEAP_SIZE, .screen = {}};
     return mv;
 }
 
@@ -67,10 +69,14 @@ void mv_run(Mv mv, bool debug) {
         Err e = mv_execute_inst(&mv, &mv.program.inst[i], &i, debug);
         // Passing the reference to the loop counter so we can change it
 
-        if (e.type != None) {
+        if (e.type != None && e.type != MV_Stop) {
             mv.halt = true;
             // Handle any errors produced by executing the last instruction
+            mv_close(mv);
             fatal_err(e);
+        } else if (e.type == MV_Stop) {
+            mv.halt = true;
+            mv_close(mv);
         }
     }
 }
@@ -323,7 +329,15 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
                 break;
             }
 
-            push(mv->stack, pop(mv->stack).data%pop(mv->stack).data);
+            Node a = pop(mv->stack);
+            Node b = pop(mv->stack);
+
+            if (a.data == 0 || b.data == 0) {
+                e.type = MV_DivisionByZero;
+                break;
+            }
+
+            push(mv->stack, (int) a.data % (int)b.data);
         }
         break;
     case INC:
@@ -622,6 +636,67 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
         push(mv->stack, ptr);
     }
         break;
+    case DRAW: {
+        render_screen(&mv->screen);
+        break;
+    }
+    case CLEAR_SCREEN: {
+        screen_clear(&mv->screen);
+        break;
+    }
+    case VID_MEM_READ:
+        if (mv->stack->size + 1 >= STACK_CAP) {
+            e.type = STACK_StackOverflow;
+        } else if (!i->has_operand && !i->literal) {
+            e.type = INST_MissingParameters;
+        } else if ((i->has_operand && i->operand < 0) || 
+                    (i->literal != NULL && mv->stack->size >= 1 && peek(mv->stack)->data < 0)) {
+            e.type = STACK_IndexOutofBounds;
+        }
+
+        if (e.type != None) {
+            break;        
+        }
+
+        if (i->has_operand) {
+            push(mv->stack, mv->screen.video_buffer[i->operand]);
+        } else if (!i->has_operand && strcmp(i->literal, ".") == 0 && mv->stack->size >= 1) {
+            push(mv->stack, mv->screen.video_buffer[peek(mv->stack)->data]);
+        }
+        break;
+    case VID_MEM_WRITE:
+        if (!i->has_operand && !i->has_literal && !i->has_operator) {
+            e.type = INST_MissingParameters;
+        } else if ((i->has_operand && i->operand < 0) || 
+                    (i->has_literal && mv->stack->size >= 1 && peek(mv->stack)->data < 0)) {
+            e.type = STACK_IndexOutofBounds;
+        }
+
+        if (e.type != None) {
+            break;        
+        }
+
+        if (i->has_operand && i->has_operator) {
+            mv->screen.video_buffer[i->operand] = i->operator;
+        } else if (!i->has_operand && i->has_operator && i->has_literal) {
+            mv->screen.video_buffer[peek(mv->stack)->data] = i->operator;
+        } else if (i->has_operand && !i->has_operator && i->has_literal) {
+            mv->screen.video_buffer[i->operand] = peek(mv->stack)->data;
+        } else if (!i->has_operand && !i->has_operator && i->has_literal) {
+            mv->screen.video_buffer[peek(mv->stack)->data] = peek(mv->stack)->data;
+        }
+        break;
+    case WAIT: {
+        // Delay function for the wait inst
+        int milliseonds = 1000;
+
+        if (i->has_operand)
+            milliseonds = i->operand;
+
+        for (long j = 0; j < milliseonds * 1000 * 500; ++j) {
+        }
+    }
+        break;
     case LABEL:
         break;
     case EMPTY:
@@ -634,4 +709,4 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
 }
 
 #endif //__MV_H
-// 630 lines of code 🇱 👊
+// 643 lines of code 🇱 👊

@@ -97,10 +97,17 @@ InstType str_to_type(const char* str) {
     else if (strcmp(str, "str") == 0) {return STR;}
     else if (strcmp(str, "arr") == 0) {return ARR;}
 
+    else if (strcmp(str, "vid_mem_read") == 0) {return VID_MEM_READ;}
+    else if (strcmp(str, "vid_mem_write") == 0) {return VID_MEM_WRITE;}
+    else if (strcmp(str, "draw") == 0) {return DRAW;}
+    else if (strcmp(str, "clear_screen") == 0) {return CLEAR_SCREEN;}
+
     else if (strcmp(str, "ret") == 0) {return RET;}
     else if (strcmp(str, "call") == 0) {return CALL;}
 
     else if (strcmp(str, "include") == 0) {return INCLUDE;}
+    
+    else if (strcmp(str, "wait") == 0) {return WAIT;}
     
     else if (strcmp(str, "") == 0) { return EMPTY;}
 

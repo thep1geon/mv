@@ -1,10 +1,10 @@
 #ifndef __LABEL_H
 #define __LABEL_H
 
-#include <stddef.h>
 #include <stdio.h>
 
 #define PROGRAM_MAX_SIZE 1024
+typedef unsigned long size_t;
 
 typedef struct {
     int jump_point;
