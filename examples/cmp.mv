@@ -1,0 +1,4 @@
+push 42
+push 42
+cmp
+dump

@@ -53,11 +53,9 @@ dupe 0 ;; Duplicate the pointer
 pop 0 ;; Pop it into register 0
 add ;; add the pointer to the length of the string
 mem_write . 10 ;; Write at that address, 10. A newline character 
-inc 0 ;; Increment the pointer
-mem_write . 0 ;; Write a 0
 pop ;; pop the pointer
-
-call print_str ;; Expects the pointer in register 0
+mov 0 ;; move the value from register 0 onto the stack
+call print_str ;; Expects the pointer on the top of the stack
 ```
 
 Prints "Hello World!" with a newline to the standard output

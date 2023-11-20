@@ -35,6 +35,7 @@ typedef enum {
     JMP_LTEQ, //<=
     JMP_EQ, //==
     JMP_NEQ, // != //18
+    CMP,
     
     MEM_READ,
     MEM_WRITE,

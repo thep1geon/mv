@@ -1,6 +1,6 @@
 ;; Prints a string from memory
 ;; Param: pointer to the first char on top of the stack
-;; WARNING: This function consumes the pointer and pops it off the stack when done
+;; WARNING: This function consumes the pointer
 func print_str:
 print_loop:
 mem_read .

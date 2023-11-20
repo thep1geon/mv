@@ -36,6 +36,20 @@ bool isnum(const char* str) {
     return true;  // All characters are digits
 }
 
+bool str_eq(const char* one, const char* two) {
+    if (strlen(one) != strlen(two)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < strlen(one); ++i) {
+        if (one[i] != two[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // (I don't think) This code is memory safe
 char* substr(const char* src, int start, int end) {
     int input_len = strlen(src);
@@ -57,59 +71,60 @@ char* substr(const char* src, int start, int end) {
 }
 
 InstType str_to_type(const char* str) {
-    if (strcmp(str, "func") == 0) {return FUNC;}
+    if (str_eq(str, "func")) {return FUNC;}
 
     else if (strlen(str) >= 1) {
         if (str[strlen(str)-1] == ':') {return LABEL;}
     }
 
-    if (strcmp(str, "add") == 0) { return ADD;}
-    else if (strcmp(str, "sub") == 0) { return SUB;}
-    else if (strcmp(str, "div") == 0) { return DIV;}
-    else if (strcmp(str, "mod") == 0) { return MOD;}
-    else if (strcmp(str, "mult") == 0) { return MULT;}
-    else if (strcmp(str, "inc") == 0) { return INC;}
-    else if (strcmp(str, "dec") == 0) { return DEC;}
+    if (str_eq(str, "add")) { return ADD;}
+    else if (str_eq(str, "sub")) { return SUB;}
+    else if (str_eq(str, "div")) { return DIV;}
+    else if (str_eq(str, "mod")) { return MOD;}
+    else if (str_eq(str, "mult")) { return MULT;}
+    else if (str_eq(str, "inc")) { return INC;}
+    else if (str_eq(str, "dec")) { return DEC;}
 
-    else if (strcmp(str, "push") == 0) { return PUSH;}
-    else if (strcmp(str, "push_lit") == 0) { return PUSH_LIT;}
-    else if (strcmp(str, "dupe") == 0) { return DUPE;}
-    else if (strcmp(str, "pop") == 0) {return POP;}
+    else if (str_eq(str, "push")) { return PUSH;}
+    else if (str_eq(str, "push_lit")) { return PUSH_LIT;}
+    else if (str_eq(str, "dupe")) { return DUPE;}
+    else if (str_eq(str, "pop")) {return POP;}
 
-    else if (strcmp(str, "stop") == 0) { return STOP;}
-    else if (strcmp(str, "dump") == 0) { return DUMP;}
-    else if (strcmp(str, "print") == 0) { return PRINT;}
-    else if (strcmp(str, "size") == 0) { return SIZE;}
-    else if (strcmp(str, "swap") == 0) { return SWAP;}
+    else if (str_eq(str, "stop")) { return STOP;}
+    else if (str_eq(str, "dump")) { return DUMP;}
+    else if (str_eq(str, "print")) { return PRINT;}
+    else if (str_eq(str, "size")) { return SIZE;}
+    else if (str_eq(str, "swap")) { return SWAP;}
 
-    else if (strcmp(str, "mov") == 0) {return MOV;}
+    else if (str_eq(str, "mov")) {return MOV;}
 
-    else if (strcmp(str, "jmp") == 0) { return JMP;}
-    else if (strcmp(str, "jmp_gt") == 0) { return JMP_GT;}
-    else if (strcmp(str, "jmp_gteq") == 0) { return JMP_GTEQ;}
-    else if (strcmp(str, "jmp_lt") == 0) { return JMP_LT;}
-    else if (strcmp(str, "jmp_lteq") == 0) { return JMP_LTEQ;}
-    else if (strcmp(str, "jmp_eq") == 0) { return JMP_EQ;}
-    else if (strcmp(str, "jmp_neq") == 0) { return JMP_NEQ;}
+    else if (str_eq(str, "jmp")) { return JMP;}
+    else if (str_eq(str, "jmp_gt")) { return JMP_GT;}
+    else if (str_eq(str, "jmp_gteq")) { return JMP_GTEQ;}
+    else if (str_eq(str, "jmp_lt")) { return JMP_LT;}
+    else if (str_eq(str, "jmp_lteq")) { return JMP_LTEQ;}
+    else if (str_eq(str, "jmp_eq")) { return JMP_EQ;}
+    else if (str_eq(str, "jmp_neq")) { return JMP_NEQ;}
+    else if (str_eq(str, "cmp")) { return CMP;}
 
-    else if (strcmp(str, "mem_read") == 0) {return MEM_READ;}
-    else if (strcmp(str, "mem_write") == 0) {return MEM_WRITE;}
-    else if (strcmp(str, "str") == 0) {return STR;}
-    else if (strcmp(str, "arr") == 0) {return ARR;}
+    else if (str_eq(str, "mem_read")) {return MEM_READ;}
+    else if (str_eq(str, "mem_write")) {return MEM_WRITE;}
+    else if (str_eq(str, "str")) {return STR;}
+    else if (str_eq(str, "arr")) {return ARR;}
 
-    else if (strcmp(str, "vid_mem_read") == 0) {return VID_MEM_READ;}
-    else if (strcmp(str, "vid_mem_write") == 0) {return VID_MEM_WRITE;}
-    else if (strcmp(str, "draw") == 0) {return DRAW;}
-    else if (strcmp(str, "clear_screen") == 0) {return CLEAR_SCREEN;}
+    else if (str_eq(str, "vid_mem_read")) {return VID_MEM_READ;}
+    else if (str_eq(str, "vid_mem_write")) {return VID_MEM_WRITE;}
+    else if (str_eq(str, "draw")) {return DRAW;}
+    else if (str_eq(str, "clear_screen")) {return CLEAR_SCREEN;}
 
-    else if (strcmp(str, "ret") == 0) {return RET;}
-    else if (strcmp(str, "call") == 0) {return CALL;}
+    else if (str_eq(str, "ret")) {return RET;}
+    else if (str_eq(str, "call")) {return CALL;}
 
-    else if (strcmp(str, "include") == 0) {return INCLUDE;}
+    else if (str_eq(str, "include")) {return INCLUDE;}
     
-    else if (strcmp(str, "wait") == 0) {return WAIT;}
+    else if (str_eq(str, "wait")) {return WAIT;}
     
-    else if (strcmp(str, "") == 0) { return EMPTY;}
+    else if (str_eq(str, "")) { return EMPTY;}
 
     printf("Unknown Instruction: %s\n", str);
 

@@ -20,15 +20,15 @@ typedef int bool;
 
 // Don't even know why I did this but I really don't want to change it
 typedef struct {
-    int data;
+    long data;
 } Node;
 
 // Node related functions
-Node* node_alloc(int data);
+Node* node_alloc(long data);
 void print_node(Node n);
 void print_node_ascii(Node n);
 
-Node* node_alloc(int data) {
+Node* node_alloc(long data) {
     Node *node = (Node *)(malloc(sizeof(Node)));
 
     if (node == NULL) {
@@ -40,7 +40,7 @@ Node* node_alloc(int data) {
     return node;
 }
 
-inline void print_node(Node n) { printf("%d\n", (char)n.data); }
+inline void print_node(Node n) { printf("%ld\n", n.data); }
 inline void print_node_ascii(Node n) { 
     printf("%c", (char)n.data); 
 }
@@ -56,12 +56,12 @@ typedef struct {
 Stack* new_stack();
 void print(Stack *stack);
 void print_ascii(Stack *stack);
-void push(Stack* s, int data);
+void push(Stack* s, long data);
 void push_node(Stack* s, Node* n);
 Node pop(Stack* s);
 Node* peek(Stack* s);
 bool is_empty(Stack* s);
-int search(Stack *s, int data);
+int search(Stack *s, long data);
 Node get(Stack *s, size_t index);
 void rev(Stack *s);
 void clear(Stack *s);
@@ -107,15 +107,13 @@ void print_ascii(Stack* stack) {
 // 23
 // 42
 
-void push(Stack* s, int data) {
+void push(Stack* s, long data) {
     if (s->size == STACK_CAP) {
         fatal_err(new_error(STACK_StackOverflow,
                       __LINE__, __FILE__));
     }
 
-    Node* new_node = node_alloc(data);
-    s->data[s->size] = new_node;
-    s->size++;
+    s->data[s->size++] = node_alloc(data);
 }
 
 void push_node(Stack* s, Node* n) {
@@ -157,7 +155,7 @@ Node* peek(Stack* s) {
 
 inline bool is_empty(Stack* s) { return s->size == 0; }
 
-int search(Stack* s, int data) {
+int search(Stack* s, long data) {
     for (size_t i = 0; i < s->size; ++i) {
         Node n = *s->data[i];
         if (n.data == data) {

@@ -31,13 +31,18 @@
 // The Virtual Machine
 typedef struct {
     Program program;
+
     Stack* stack;
-    Stack* call_stack; // Should the program be responsible for the call_stack
+    Stack* call_stack; // Should the program be responsible for the call_stack? No.
+   
     int heap[HEAP_SIZE];
     int heap_size;
     long registers[NUM_REGISTERS];
+
     LabelTable label_table;
+
     Screen screen;
+
     bool halt;
 } Mv; // Mirtual Vachine
 
@@ -48,7 +53,7 @@ void mv_dump(Mv mv);
 void mv_close(Mv mv);
 void mv_program_from_file(Mv* mv, const char* file_path);
 void mv_set_program(Mv* mv, Program p);
-Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug);
+Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip);
 ErrType mv_include_file(Mv* mv, char* file_path);
 size_t mv_find_memory(Mv mv, size_t length);
 
@@ -66,12 +71,47 @@ void mv_run(Mv mv, bool debug) {
     }
 
     for (size_t i = 0; i < mv.program.size && !mv.halt; ++i) {
-        Err e = mv_execute_inst(&mv, &mv.program.inst[i], &i, debug);
+        size_t last_inst = i;
+        Err e = mv_execute_inst(&mv, &mv.program.inst[i], &i);
         // Passing the reference to the loop counter so we can change it
+
+        if (debug) {
+            char buff[1024];
+            printf("\n\n-------------------\n");
+            printf("Debug Menu:\n");
+            printf("continue\n");
+            printf("print {last_inst}, {stack}\n");
+            printf("exit\n");
+            printf("-------------------\n");
+            printf("mvdb: ");
+
+            if (fgets(buff, sizeof(buff), stdin)) {
+                if (!strcmp(buff, "continue")) {
+                    continue;
+                } else if (!strcmp(buff, "exit")) {
+                    e.type = MV_Stop;
+                } else {
+                    char* token = strtok(buff, " ");
+                    if (!strcmp(token, "print")) {
+                        char* second_tok = strtok(NULL, " ");
+
+                        if (!strcmp(second_tok, "last_inst")) {
+                            print_inst(mv.program.inst[last_inst]);
+                        } else if (!strcmp(second_tok, "stack")) {
+                            mv_dump(mv);
+                        } else {
+                            printf("Command not found: ");
+                            printf("%s", buff);
+                        }
+                    }
+                }
+            } 
+        }
 
         if (e.type != None && e.type != MV_Stop) {
             mv.halt = true;
             // Handle any errors produced by executing the last instruction
+            mv_dump(mv);
             mv_close(mv);
             fatal_err(e);
         } else if (e.type == MV_Stop) {
@@ -85,7 +125,7 @@ void mv_close(Mv mv) {
     release(&mv.stack);
     release(&mv.call_stack);
 
-    free(mv.program.file);
+    // free(mv.program.file); we can leak a little bit of memory
 
     for (int i = 0; i < mv.heap_size; ++i) {
         mv.heap[i] = 0;
@@ -273,13 +313,10 @@ size_t mv_find_memory(Mv mv, size_t length) {
     // -1 if no space was found
 }
 
-Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
+// This 
+Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip) {
     // Set up an error at the beginning
     Err e = {.type = None, .line_number = i->line_number, .file = mv->program.file};
- 
-    if (debug) {
-        print_inst(*i);
-    }
 
     switch (i->type) {
     case ADD: {
@@ -417,31 +454,55 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
             e.type = jump(i, mv->label_table, ip);
         break;
     case JMP_GT:
+        if (is_empty(mv->stack)) {
+            break;
+        }
+
         if (peek(mv->stack)->data > i->operator) {
             e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_GTEQ:
+        if (is_empty(mv->stack)) {
+            break;
+        }
+
         if (peek(mv->stack)->data >= i->operator) {
             e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_LT:
+        if (is_empty(mv->stack)) {
+            break;
+        }
+
         if (peek(mv->stack)->data < i->operator) {
             e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_LTEQ:
+        if (is_empty(mv->stack)) {
+            break;
+        }
+
         if (peek(mv->stack)->data <= i->operator) {
             e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_EQ:
+        if (is_empty(mv->stack)) {
+            break;
+        }
+
         if (peek(mv->stack)->data == i->operator) {
             e.type = jump(i, mv->label_table, ip);
         } 
         break;
     case JMP_NEQ:
+        if (is_empty(mv->stack)) {
+            break;
+        }
+
         if (peek(mv->stack)->data != i->operator) {
             e.type = jump(i, mv->label_table, ip);
         } 
@@ -579,14 +640,16 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
         // Swap the two elements on the Stack
         // sets the registers back to zero after 
         if (mv->stack->size >= 2) {
+            long reg_8 = mv->registers[8];
+            long reg_7 = mv->registers[7];
             mv->registers[8] = pop(mv->stack).data;
             mv->registers[7] = pop(mv->stack).data;
             
             push(mv->stack, mv->registers[8]);
             push(mv->stack, mv->registers[7]);
 
-            mv->registers[8] = 0;
-            mv->registers[7] = 0;
+            mv->registers[8] = reg_8;
+            mv->registers[7] = reg_7;
         } else {
             e.type = STACK_StackUnderflow;
         }
@@ -697,6 +760,39 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
         }
     }
         break;
+    case CMP: {
+        if (mv->stack->size < 2) {
+            e.type = STACK_StackUnderflow;
+            break;
+        }
+
+        long o1 = pop(mv->stack).data;
+        long o2 = pop(mv->stack).data;
+        long result;
+
+        if (o1 > o2) {
+            result = 3; 
+        } 
+
+        if (o1 < o2) {
+            result = 1;
+        }
+
+        if (o1 >= o2) {
+            result = 4;
+        }
+
+        if (o1 <= o2) {
+            result = 2;
+        }
+
+        if (o1 == o2) {
+            result = 0;
+        }
+
+        push(mv->stack, result);
+    }
+        break;
     case LABEL:
         break;
     case EMPTY:
@@ -709,4 +805,4 @@ Err mv_execute_inst(Mv* mv, Inst* i, size_t* ip, bool debug) {
 }
 
 #endif //__MV_H
-// 643 lines of code 🇱 👊
+// 808 lines of code 🇱 👊

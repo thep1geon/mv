@@ -1,1 +1,3 @@
-arr 10
+loop:
+arr 9090909
+jmp loop

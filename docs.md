@@ -113,6 +113,18 @@ However, when a function is found, it is skipped.
 
 - jmp_neq [label] [condition]: Jumps to [label] if the top of the stack is not to [condition]
 
+- cmp: compares the top of the stack to the second item on the stack
+
+| Operation   | Result    |
+|--------------- | --------------- |
+| !=   |  0  |
+| ==   |  1  |
+| <   |  2  |
+| <=   |  3  |
+| >   |  4  |
+| >=   |  5  |
+
+
 ### Memory Operations
 
 - mem_read [address]: Pushes the value at [address] onto the stack
